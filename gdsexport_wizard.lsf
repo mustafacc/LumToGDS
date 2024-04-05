@@ -1,0 +1,38 @@
+#x = getmaterial;
+#print(x(1))
+newwizard(300,200,"Stack Definition Wizard");
+wizardoption("fontsize",12);
+wizardoption("fieldwidth",150);
+wizardoption("fieldheight",20);
+wizardoption("margin",20);
+newwizardpage("Go");
+
+wizardwidget("label",endl+"Please define your layers to be used in GDS Exporting."+endl);
+wizardoption("margin",50);
+wizardwidget("checkbox","Include Layer",1);
+wizardwidget("number","Layer Number:",1);
+wizardwidget("number","DataType Number:",0);
+wizardwidget("menu","Material","1|2|3|4|",1);
+
+wizardwidget("checkbox","Include Layer");
+wizardwidget("number","Layer Number:",1);
+wizardwidget("number","DataType Number:",0);
+wizardwidget("menu","Material","1|2|3|4|",1);
+
+wizardwidget("checkbox","Include Layer");
+wizardwidget("number","Layer Number:",1);
+wizardwidget("number","DataType Number:",0);
+wizardwidget("menu","Material","1|2|3|4|",1);
+
+wizardwidget("checkbox","Include Layer");
+wizardwidget("number","Layer Number:",1);
+wizardwidget("number","DataType Number:",0);
+wizardwidget("menu","Material","1|2|3|4|",1);
+
+wizardwidget("checkbox","Include Layer");
+wizardwidget("number","Layer Number:",1);
+wizardwidget("number","DataType Number:",0);
+wizardwidget("menu","Material","1|2|3|4|",1);
+
+out = runwizard;
+killwizard;

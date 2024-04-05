@@ -1,0 +1,51 @@
+#selects all objects, saves all their info to a struct
+clear;
+
+#Get the amount of items there are and create entries for each one
+selectall;
+obj_count = getnumber; #function to call all selected objects
+unselectall;
+objects = {
+    "name":cell(obj_count),
+    "material":cell(obj_count),
+    "zmin":cell(obj_count),
+    "zmax":cell(obj_count)    
+    };
+
+while_bool=1;
+errMsg = "";
+for(i = 1; i <= obj_count ; i=i+1) {
+    selectall;
+    gdstemp_name = get("name",1); #the additional argument is to choose the first item when multiple are selected       
+    select(gdstemp_name);
+    if(gdstemp_name != "gdstemp"){
+        addtogroup("gdstemp");
+        #do stuff
+        try{
+            test=get("material"); #check the obj is a geometry
+            }catch(errMsg);
+         if (errMsg == ""){
+            objects.name{i} = get("name"); #dynamic struct assignment
+            objects.material{i} = get("Material"); 
+            objects.zmin{i} = get("z min"); 
+            objects.zmax{i} = get("z max");
+            }
+        else{
+            objects.name{i} = "none";
+            objects.material{i} = "none";
+            objects.zmin{i} = -1; #1m, kind of risky to use in place of a none type. But lumerical doesn't have none types..
+            objects.zmax{i} = -1;    
+            }
+        }
+    #reset variables. this is needed to assign 0 to unexpected values from line29
+    test="0";
+    errMsg = "";
+}
+
+#Return objects back to original
+groupscope("gdstemp");
+selectall;
+addtogroup("::model");
+groupscope("::model");
+select("gdstemp");
+delete;
