@@ -93,19 +93,26 @@ function create_export_metadata(objects){
     count = 0;
     samelayers = [0];
     for (i=1;i<=array_size;i=i+1){
-        for(j=i+1;j<=array_size;j=j+1){ #get the next object in the list
-            ?print("i"+num2str(i)+" j"+num2str(j));
+        for(j=i+1;j<=array_size;j=j+1){ #get the next object in the list      
             if (objects.material{i} == objects.material{j}){ #confirm materials match
                 if ((objects.zmin{i} == objects.zmin{j}) & (objects.zmax{i} == objects.zmax{j})){
                     #materials match, can share layer
+                    #?print("i"+num2str(i)+" j"+num2str(j)); #debug print
                     count = count + 1;
-                    samelayers = [samelayers,j];                        
-                }
+                    samelayers = [samelayers,j];
+                    i=i+2; #we can skip over the i+1, because we have already compared it (j) and confirmed it is sharing a layer
+                    j=j+2; #j is not dynamic, so we have to also add 2 here
+                    try{break;}catch(errMsg);                      
+                    }
                 else{
-                     #If no way to group, then add just the current layer
-                     count = count + 1;                             
-                }                                         
-            }
+                    count = count +1;
+                    try{break;}catch(errMsg);                                                               
+                }            
+            }                
+            else{
+                    count = count +1;
+                    try{break;}catch(errMsg);
+            } 
         }
     }    
     ?samelayers;
@@ -116,18 +123,28 @@ function create_export_metadata(objects){
         "zmax":cell(count)
     };
     
-    #for (i=1;i<=count;i=i+1){ #trim and format array
-        #metadata.material{i} = objects.material{index_tracking(i+1)};    
-    #}
+    for (i=1;i<=count;i=i+1){ #trim and format array     
+        for(j=1+1;j<=length(samelayers);j=j+1){
+            if (i==samelayers(j)){
+                print(num2str(i)+" matrix:"+num2str(samelayers(j)));
+                metadata.material{i} = objects.material{i+1};
+                i=i+1;
+                try{break;}catch(errMsg);            
+                }
+            else{
+                metadata.material{i} = objects.material{i};
+            }
+        }    
+    }
     
     return metadata;
 }
 
 a=get_objects_info();
-?mymeta = create_export_metadata(get_objects_info());
+mymeta = create_export_metadata(get_objects_info());
 ?mymeta.material;
-#?mymeta.material{1};
-#?mymeta.material{2};
-#?mymeta.material{3};
-#?mymeta.material{4};
-#?mymeta.material{5};
+?mymeta.material{1};
+?mymeta.material{2};
+?mymeta.material{3};
+?mymeta.material{4};
+?mymeta.material{5};
