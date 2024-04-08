@@ -1,5 +1,7 @@
 #x = getmaterial;
 #print(x(1))
+
+
 newwizard(300,200,"Stack Definition Wizard");
 wizardoption("fontsize",12);
 wizardoption("fieldwidth",150);
