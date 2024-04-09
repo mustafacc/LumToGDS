@@ -1,6 +1,7 @@
 function get_objects_info(){
     #selects all objects, saves all their info to a struct
     clear;
+    groupscope("::model");
     
     #Get the amount of items there are and create entries for each one
     selectall;
@@ -24,10 +25,10 @@ function get_objects_info(){
             #do stuff
             try{
                 test=get("material"); #check the obj is a geometry
-                }catch(errMsg);
+                }catch(errMsg); #Lumerical support: you can use get("type") or getnamed("NAME","type"). But this returns specific object types, not general types
              if (errMsg == ""){
                 objects.name{i} = get("name"); #dynamic struct assignment
-                objects.material{i} = get("Material"); 
+                objects.material{i} = get("material"); 
                 objects.zmin{i} = get("z min"); 
                 objects.zmax{i} = get("z max");
                 }
@@ -169,6 +170,8 @@ function create_export_metadata(objects){
                 #?k;
                 #?i;
                 metadata.material{k} = objects.material{i};
+                metadata.zmin{k} = objects.zmin{i};
+                metadata.zmax{k} = objects.zmax{i};
                 i=i+1;
                 k=k+1;                
                 try{break;}catch(errMsg);                                                      
