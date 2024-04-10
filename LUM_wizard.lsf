@@ -17,7 +17,7 @@ round_to_nm = 1;	# round the z and z span to the nearest integer of nm
 grid = 1e-9;	# Round XY coordinates to this grid in SI. Will also update the database units if grid < 
 max_objects = 10000;	# the maximum number of objects within the workspace (Increasing this will increase export time)
 Lumerical_GDS_autoexp_functions; #loads the necessary functions
-LIB_gds_extract;
+LUM_auto_detect;
 
 #FUNCTIONS
 function draw_entry_page(i,metadata){
