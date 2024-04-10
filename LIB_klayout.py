@@ -1,3 +1,21 @@
+# def format_execute_lsf():
+        # #export settings to lsf
+        # mysettings = #
+        # "layer_def=[" .... #Conitune here with a for loop
+        # +"gds_filename=\""+gds_filename+"\";\n"
+        # +"top_cell=\""+top_cell+"\";\n"
+        # +"n_circle="+num2str(n_circle)+";\n"
+        # +"n_ring="+num2str(n_ring)+";\n"
+        # +"n_custom="+num2str(n_custom)+";\n"
+        # +"n_wg="+num2str(n_wg)+";\n"
+        # +"round_to_nm="+num2str(round_to_nm)+";\n"
+        # +"grid="+num2str(grid)+";\n"
+        # +"max_objects="+num2str(max_objects)+";\n"
+        # +"Lumerical_GDS_autoexp_functions;\nLumerical_GDS_autoexp;\n";
+
+        # write("export_settings.lsf",mysettings,"overwrite");
+        # export_settings; #lsf file to run.
+
 def klayout_formatfile(input="output.gds"):
     #Due to a format update in Klayout 0.27+, newer version of Klayout cannot read the file format exported
     #by the lumerical encrypted library. The work around is to load the file in Klayout26 and resave it.
@@ -9,5 +27,7 @@ def klayout_formatfile(input="output.gds"):
     ly = db.Layout()
     ly.read(input)
     ly.write(input)
-    
+    print("hi")   
+
+ 
 klayout_formatfile()

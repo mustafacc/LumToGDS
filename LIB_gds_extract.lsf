@@ -145,23 +145,6 @@ function create_export_metadata(objects){
         "zmin":cell(count),
         "zmax":cell(count)
     };
-    
-    ##TODO STEPHEN, continue here, the layers being output are not correct, likely to do with line 133
-    ##expecting: si,si,metal, sio2, sio2
-    ##getting: si, si, si, metal, sio2
-    #for (i=1;i<=count;i=i+1){ #trim and format array     
-        #write_to_array = true;        
-        #for(j=1+1;j<=length(samelayers);j=j+1){
-            #if (i==samelayers(j)){
-                #write_to_array = false;         
-                #try{break;}catch(errMsg);            
-                #}
-            #}
-        #if (write_to_array){
-            #print("yor"+num2str(i));
-            #metadata.material{i} = objects.material{i};        
-            #}      
-        #}
         
     k = 1;
     for(i=1;i<=array_size;i=i+1){
@@ -182,12 +165,12 @@ function create_export_metadata(objects){
 }
 
 #a=get_objects_info();
-metadata = create_export_metadata(get_objects_info());
-clearfunctions;
+#metadata = create_export_metadata(get_objects_info());
+#clearfunctions;
 
-?metadata.material;
-?metadata.material{1};
-?metadata.material{2};
-?metadata.material{3};
-?metadata.material{4};
-?metadata.material{5};
+#?metadata.material;
+#?metadata.material{1};
+#?metadata.material{2};
+#?metadata.material{3};
+#?metadata.material{4};
+#?metadata.material{5};

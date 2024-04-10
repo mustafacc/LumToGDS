@@ -1,19 +1,26 @@
-function lumerical_auto_export(gds_filename,top_cell,input){
-    #gds_filename = 'output.gds';
-    #top_cell = 'model';
-    layer_def = input;
-    n_circle = 64;	# number of sides to use for circle approximation (64 by default).
-    n_ring = 64;	# number of slices to use for ring approximation (64 by default).
-    n_custom = 64;	# number of slices to use for custom approximation (64 by default).
-    n_wg = 64;		# number of slices to use for waveguide approximation (64 by default). 
-    round_to_nm = 1;	# round the z and z span to the nearest integer of nm
-    grid = 1e-9;	# Round XY coordinates to this grid in SI. Will also update the database units if grid < 
-    max_objects = 10000;	# the maximum number of objects within the workspace (Increasing this will increase export time)
-    Lumerical_GDS_autoexp_functions;
-    Lumerical_GDS_autoexp;
-}
+#How to use:
+#1. Press F5 or Run
+#The script will first find all geometry objects and store them to a 'metadata' variable (LIB_GDS_extract)
+#The script will then initiate a wizard to allow the user to input layer information corresponding to the detected material + geometry heights
+#The Wizard will then prompt a filename and save to it.
 
-function draw_entry_page(i,metadata,layer_def){
+#Exported GDS only readable in Klayout 0.26 or earlier
+#Please use the python3.9 method or converter script if 
+#you wish to use it for later Klayout versions.
+
+#DEFAULT SETTINGS for Lumerical's library
+n_circle = 64;	# number of sides to use for circle approximation (64 by default).
+n_ring = 64;	# number of slices to use for ring approximation (64 by default).
+n_custom = 64;	# number of slices to use for custom approximation (64 by default).
+n_wg = 64;		# number of slices to use for waveguide approximation (64 by default). 
+round_to_nm = 1;	# round the z and z span to the nearest integer of nm
+grid = 1e-9;	# Round XY coordinates to this grid in SI. Will also update the database units if grid < 
+max_objects = 10000;	# the maximum number of objects within the workspace (Increasing this will increase export time)
+Lumerical_GDS_autoexp_functions; #loads the necessary functions
+LIB_gds_extract;
+
+#FUNCTIONS
+function draw_entry_page(i,metadata){
     if(i==1){newwizardpage("Next");}
     else{newwizardpage("Next","Back");}
     
@@ -25,32 +32,11 @@ function draw_entry_page(i,metadata,layer_def){
     wizardwidget("checkbox","Include Layer",1);
     wizardwidget("number","Layer Number:",i);
     wizardwidget("number","DataType Number:",0); 
-                               
-    out = runwizard; #0 = cancel, 1 is button 1, -1 is button 2
-    if(out==0){
-      killwizard;
-    }
-    
-    else if((out==1)){
-        layer_def(i,1) = wizardgetdata(2);
-        layer_def(i,2) = wizardgetdata(3);
-        layer_def(i,3) = metadata.zmin{i};        
-        layer_def(i,4) = metadata.zmax{i};
-        i=i+1;         
-        if(i<=length(metadata.material)){layer_def=draw_entry_page(i,metadata,layer_def);}
-        return layer_def;
-    }
-    
-    else if((out==-1)){
-        i=i-1;
-        if(i!=0){
-            layer_def=draw_entry_page(i,metadata,layer_def);
-            }
-        return layer_def;
-    }
-}    
+                              
+}
 
 
+metadata = create_export_metadata(get_objects_info());
 layer_def = matrix(length(metadata.material),4); #exported to the gds generator script
 #Create Wizard
 newwizard(300,200,"Stack Definition Wizard");
@@ -64,15 +50,40 @@ wizardwidget("label",endl+"The following layer information was auto-detected:"+e
 wizardwidget("label","Number of Layers: "+num2str(length(metadata.material))); #list number of layers
 wizardwidget("label","Layer Materials:"+endl); #list all materials used in the file
 for (i=1;i<=length(metadata.material);i=i+1){
-    wizardwidget("label",metadata.material{i}); 
+   wizardwidget("label",metadata.material{i}); 
 }
 out = runwizard; #0 = cancel, 1 is button 1, -1 is button 2
 if(out==0){
-    killwizard;
+   killwizard;
 }
-else if(out==1){
-    i=1;
-    layer_def = draw_entry_page(i,metadata,layer_def); #recursively create entry pages
+
+#Draw number of pages based on how many entries
+#if back is pressed, load previous page via value of i
+for(i=1;i<=length(metadata.material);0){
+   draw_entry_page(i,metadata);
+   out = runwizard; #0 = cancel, 1 is button 1, -1 is button 2
+   if(out==0){
+   killwizard;
+   }
+
+   else if((out==1)){
+	  layer_def(i,1) = wizardgetdata(2);
+	  layer_def(i,2) = wizardgetdata(3);
+	  layer_def(i,3) = metadata.zmin{i};        
+	  layer_def(i,4) = metadata.zmax{i};
+	  i=i+1;         
+	  #if(i<=length(metadata.material)){i=i+1;}
+	  #return layer_def;
+   }
+
+   else if((out==-1)){
+	  i=i-1;
+	  if(i!=0){
+		 #layer_def=draw_entry_page2(i,metadata,layer_def);
+		 i=i-1;
+		 }
+	  #return layer_def;
+   }	
 }
 
 #final confirmation page
@@ -83,24 +94,38 @@ wizardwidget("string","Top Cell\t(\"model\"):",",model");
 wizardwidget("label","Layers Export Information");
 wizardwidget("label","Ly\t Dat\t Zmin\t Zmax");
 for (i=1;i<=length(layer_def(:,1));i=i+1){
-    wizardwidget("label",num2str(layer_def(i,1))+"\t"+num2str(layer_def(i,2))+"\t"+num2str(layer_def(i,3)*1e6)+"\t"+num2str(layer_def(i,4)*1e6)); 
+   wizardwidget("label",num2str(layer_def(i,1))+"\t"+num2str(layer_def(i,2))+"\t"+num2str(layer_def(i,3)*1e6)+"\t"+num2str(layer_def(i,4)*1e6)); 
 }
 
 out = runwizard;
 if(out==0){
-    killwizard;
+   killwizard;
 }
 else if(out==1){
-    if (wizardgetdata(1)!=""){gds_filename = wizardgetdata(1);}
-    else{gds_filename = "output.gds";}
-    if (wizardgetdata(2)!=""){top_cell = wizardgetdata(2);}
-    else{top_cell = "model";}
-    killwizard;
+   if (wizardgetdata(1)!=""){gds_filename = wizardgetdata(1);}
+   else{gds_filename = "output.gds";}
+   if (wizardgetdata(2)!=""){top_cell = wizardgetdata(2);}
+   else{top_cell = "model";}
+        killwizard;     
+        Lumerical_GDS_autoexp; #this executes the gds export
+        print("GDS Export Complete.");
 }
 
-lumerical_auto_export(gds_filename,top_cell,layer_def);
-clear(i);
+clearfunctions;
+clear(gds_filename);
+clear(grid);
+clear(layer_no);
+clear(max_objects);
+clear(n_circle);
+clear(n_custom);
+clear(n_ring);
+clear(n_wg);
+clear(orig_layer_def);
 clear(out);
-#clearfunctions;
-#clear(metadata);
-#clear(layer_def);
+clear(round_to_nm);
+clear(top_cell);
+clear(layer_def);
+
+
+
+
