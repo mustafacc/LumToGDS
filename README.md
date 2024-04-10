@@ -2,7 +2,7 @@
 Library and GUI Wizard for exporting GDS from Lumerical
 
 # Functions
-## Lumerical natively
+## Lumerical Natively (.lsf)
 - Auto geoemtry detection
 - Export wizard - User maps detected layers to their layout layer definitions
 - Exported GDS only supports up to Klayout 0.26
