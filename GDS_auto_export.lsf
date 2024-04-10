@@ -44,7 +44,7 @@ top_cell = 'model';
 # STEP 2. Users define the layer properties. Here, a layer corresponds to a unique set of z min & z max.
 
 # Option 1: [layer number, z min, z max; layer number, z min, z max; ...], where layer datatype will default to zero
-layer_def = [1, -0.5e-6, 0.5e-6;
+layer_def = [1, -0.11e-6, 0.11e-6;
              2, 0, 0.5e-6; 
              3, -0.5e-6, 0; 
              4, -0.25e-6, 0.25e-6];

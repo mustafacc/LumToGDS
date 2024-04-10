@@ -91,12 +91,14 @@ if(out==0){
     killwizard;
 }
 else if(out==1){
-    gds_filename = wizardgetdata(1);
-    top_cell = wizardgetdata(2);
+    if (wizardgetdata(1)!=""){gds_filename = wizardgetdata(1);}
+    else{gds_filename = "output.gds";}
+    if (wizardgetdata(2)!=""){top_cell = wizardgetdata(2);}
+    else{top_cell = "model";}
     killwizard;
 }
 
-#lumerical_auto_export(gds_filename,top_cell,layer_def);
+lumerical_auto_export(gds_filename,top_cell,layer_def);
 clear(i);
 clear(out);
 #clearfunctions;
