@@ -21,3 +21,7 @@ pip install -r requirements.txt
 
 # How to use
 to be written.
+
+# note:
+might be worth to include the contour GDS extraction method
+https://optics.ansys.com/hc/en-us/articles/1500007228522-GDS-pattern-extraction-for-inverse-designed-devices-using-contours-method
