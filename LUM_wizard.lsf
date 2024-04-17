@@ -108,7 +108,7 @@ else if(out==1){
    else{top_cell = "model";}
         killwizard;     
         Lumerical_GDS_autoexp; #this executes the gds export
-        print("GDS Export Complete.");
+        print("Exported to GDS.");
 }
 
 clearfunctions;

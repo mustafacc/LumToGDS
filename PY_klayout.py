@@ -27,7 +27,14 @@ def klayout_formatfile(input="output.gds"):
     ly = db.Layout()
     ly.read(input)
     ly.write(input)
-    print("hi")   
 
+def main():
+    #detect if multiple files or one
+    #format all files
+    #merge if more than 1
+    return
+
+def klayout_mergefiles():
+    return 
  
 klayout_formatfile()

@@ -203,12 +203,12 @@ function create_export_metadata(objects){
 }
 
 #a=get_objects_info();
-metadata = create_export_metadata(get_objects_info());
+#metadata = create_export_metadata(get_objects_info());
 #clearfunctions;
 
-?metadata.material;
-?metadata.material{1};
-?metadata.material{2};
-?metadata.material{3};
-?metadata.material{4};
+#?metadata.material;
+#?metadata.material{1};
+#?metadata.material{2};
+#?metadata.material{3};
+#?metadata.material{4};
 #?metadata.material{5};
