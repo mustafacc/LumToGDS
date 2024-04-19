@@ -38,7 +38,7 @@ clear; #Start with a clean workspace
 #load("GDS_auto_export_test.fsp");
 
 # STEP 1: Users define the output GDSII file name, and the top cell name.
-gds_filename = 'output.gds';
+gds_filename = 'output/output.gds';
 top_cell = 'model';
 
 # STEP 2. Users define the layer properties. Here, a layer corresponds to a unique set of z min & z max.
