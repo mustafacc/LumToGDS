@@ -16,8 +16,10 @@ Library and GUI Wizard for exporting GDS from Lumerical
 - [ ] Klayout Python API
 
 # Installation Instructions
-installing libaries for the virutal env
+install Python 3.9
 pip install -r requirements.txt
+
+set the python in lumerical to use local (3.9)
 
 # How to use
 to be written.
