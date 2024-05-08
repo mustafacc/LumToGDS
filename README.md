@@ -33,7 +33,7 @@ Please flatten the whole hierachy for extraction. You may consider copy and past
 - [ ] LumAPI
 
 # Installation Instructions
-1. install Python 3.9 x64
+1. Install Python 3.9 x64
 2. In the windows command-line, run the command: `pip install -r requirements.txt` to automatically install the required libraries.
 3. Confirm/Add the Python 3.9 Environment Path
     1. Open the Start Menu and type "Edit system environment variables"
