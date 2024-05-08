@@ -54,7 +54,7 @@ set("x",0);
 set("z",0);
 set("radius",2e-6);
 set("z span", 0.30e-6);##
-set("material","W (Tungsten) - CRC");
+set("material","TiN - Palik");
 
 #Overlapping same material
 addrect;
