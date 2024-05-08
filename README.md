@@ -23,6 +23,10 @@ set the python in lumerical to use local (3.9)
 
 # How to use
 to be written.
+*warn about the /output/ folder autoremoving ".gds files
+
+## Sectino for LSF users: Lumerical Integrated Python, how to check
+## do not delete the output folder, it is used for an intermediate step to stich together all the gds of each geometry.
 
 # note:
 might be worth to include the contour GDS extraction method

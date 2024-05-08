@@ -11,3 +11,7 @@ if lumerical library doesn't work with newest klayout:
 
 further considerations:
 -how do round 3D shapes work for extraction?
+
+limitations:
+Not compatible with nested geometry objects. Please flatten the Object hierarchy.
+Not compatible with objects with same name. Please make sure names are unique

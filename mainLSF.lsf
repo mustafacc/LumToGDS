@@ -172,3 +172,5 @@ clear(dupdata);
 clear(dupe);
 clear(ori);
 clear(j);
+
+python("PY_klayout.py"); #Converts and merges the output file to be usable with up to date Klayout versions

@@ -1,0 +1,97 @@
+#Same height and material objects
+addrect;
+set("name","rect1");
+set("x",10e-6);
+set("x span",5e-6);
+set("y",0);
+set("y span",5e-6);
+set("z",0);
+set("z span", 0.22e-6);
+
+addcircle;
+set("name","circle1");
+set("x",0);
+set("y",0);
+set("z",0);
+set("radius",2e-6);
+set("z span", 0.22e-6);
+
+#same height different material
+addrect;
+set("name","rect2");
+set("x span",5e-6);
+set("x",10e-6);
+set("y",10e-6);
+set("y span",5e-6);
+set("z",0);
+set("z span", 0.22e-6);
+set("material","TiN - Palik");##
+
+addcircle;
+set("name","circle2");
+set("y",10e-6);
+set("x",0);
+set("z",0);
+set("radius",2e-6);
+set("z span", 0.22e-6);
+set("material","W (Tungsten) - CRC");##
+
+#different height same material
+addrect;
+set("name","rect3");
+set("x span",5e-6);
+set("x",10e-6);
+set("y",20e-6);
+set("y span",5e-6);
+set("z",0);
+set("z span", 0.50e-6);##
+set("material","TiN - Palik");
+
+addcircle;
+set("name","circle3");
+set("y",20e-6);
+set("x",0);
+set("z",0);
+set("radius",2e-6);
+set("z span", 0.30e-6);##
+set("material","W (Tungsten) - CRC");
+
+#Overlapping same material
+addrect;
+set("name","rect4");
+set("x span",5e-6);
+set("x",1e-6);
+set("y",30e-6);
+set("y span",5e-6);
+set("z",0);
+set("z span", 0.2e-6);
+set("material","Si (Silicon) - Palik");
+
+addcircle;
+set("name","circle4");
+set("y",30e-6);
+set("x",0);
+set("z",0);
+set("radius",2e-6);
+set("z span", 0.2e-6);
+set("material","Si (Silicon) - Palik");
+
+#overlapping different material
+addrect;
+set("name","rect5");
+set("x span",5e-6);
+set("x",1e-6);
+set("y",40e-6);
+set("y span",5e-6);
+set("z",0);
+set("z span", 0.2e-6);
+set("material","Si (Silicon) - Palik");
+
+addcircle;
+set("name","circle5");
+set("y",40e-6);
+set("x",0);
+set("z",0);
+set("radius",2e-6);
+set("z span", 0.2e-6);
+set("material","Pd (Palladium) - Palik");

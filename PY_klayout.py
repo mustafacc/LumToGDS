@@ -54,7 +54,11 @@ def klayout_mergefiles(directory="output",outputname = "lumexport.gds",removetem
 
     outputfullname = os.path.join(directory, outputname)
     ly.write(outputfullname)
-    print("GDS files merged.")       
+    print("GDS files merged.")
+    return True       
  
 if __name__ == '__main__':
-    klayout_mergefiles()
+    if klayout_mergefiles():
+        print("You may close this CMD window.")
+    else:
+        print("Unexpected merging error. You may close this CMD window.")
