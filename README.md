@@ -13,7 +13,7 @@ This wrapper uses a command-line Klayout 0.26 to resave GDS files to make them c
 5. Converts to up-to-date Klayout format by resaving using Klayout 0.26.
 
 ## Python GUI-less
-To be added 
+`TO BE ADDED`
 
 ## Limitations - Geometry Objects
 - Geometry objects in the Lumerical object tree MUST have unique names. Same names will be overwritten by newer entries, no error will be prompted.
@@ -62,11 +62,12 @@ Please flatten the whole hierachy for extraction. You may consider copy and past
 - .gds files in the output folder will be merged into lumexport and deleted automatically. Please do not save important files in this folder.
 
 ## Python Method
+`TO BE ADDED.`
 
 # Example File
 A makefile is provided that generates geoemtries in different situations to demonstrate export2gds' functionality.
 1. Launch FDTD and load/run the script `example/example_makefile.lsf`
 2. Run via the LSF Wizard Method or Python Method.
 
-# For Complex geoemtries:
+# For Complex geometries:
 Please see this extraction method: [Link](https://optics.ansys.com/hc/en-us/articles/1500007228522-GDS-pattern-extraction-for-inverse-designed-devices-using-contours-method)
