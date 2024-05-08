@@ -12,8 +12,10 @@ This wrapper uses a command-line Klayout 0.26 to resave GDS files to make them c
 4. Merges all GDS into a single file.
 5. Converts to up-to-date Klayout format by resaving using Klayout 0.26.
 
-## Python GUI-less
+## Python Wizard
 `TO BE ADDED`
+- Prompt user for layer entry
+- extract gds
 
 ## Limitations - Geometry Objects
 - Geometry objects in the Lumerical object tree MUST have unique names. Same names will be overwritten by newer entries, no error will be prompted.
@@ -31,6 +33,7 @@ Please flatten the whole hierachy for extraction. You may consider copy and past
 - [ ] Python x64, 2.7 to 3.9 ONLY (Tested on 3.9, x64).
 - [ ] Klayout 0.26.12 Python API 
 - [ ] LumAPI
+- [ ] PyQt6
 
 # Installation Instructions
 1. Install Python 3.9 x64
@@ -62,8 +65,12 @@ Please flatten the whole hierachy for extraction. You may consider copy and past
 - Do not delete the output folder
 - .gds files in the output folder will be merged into lumexport and deleted automatically. Please do not save important files in this folder.
 
-## Python Method
+## Python Wizard Method
 `TO BE ADDED.`
+
+## Python GUI-less Method
+- User provides a List to the function to automatically extract.
+- Users can add the `PY_klayout.py` file to their own scripts/workflows. This file contains the simple functions used in merging and saving the GDS files.
 
 # Example File
 A makefile is provided that generates geoemtries in different situations to demonstrate export2gds' functionality.

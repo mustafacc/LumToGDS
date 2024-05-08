@@ -6,6 +6,10 @@ sys.path.append(os.path.dirname(__file__)) #Current directory
 import lumapi
 
 #Run Lum files
-def main_python():
-#run klayout python
+def main():
+    #shoudl be a CMD program, no UI
+    return
+    #run klayout python
 
+if __name__ == "__main__":
+    main()
