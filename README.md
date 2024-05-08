@@ -23,7 +23,7 @@ Please flatten the whole hierachy for extraction. You may consider copy and past
 ## Limitations - Klayout GDS Format Versions
 - Klayout 0.27 went through a massive data structure update for GDS files resulting in an error when attempting to open files extracted by the functions provided by Lumerical. 
 - Lumerical has confirmed there are no plans to update the function for newer Klayout versions at this time.
-    - Please submit a feature request via: the [Ideas Exchange portal](https://ix.lumerical.com/) if you are interested in having newer versions supported. With enough interest, The Lumerical team will prioritize updating the functions.
+    - Please submit a feature request via: the [Ideas Exchange portal](https://ix.lumerical.com/) if you are interested in having newer versions supported. With enough interest, the Lumerical team will prioritize updating the functions.
 - As a workaround, saving in Klayout 0.26 will update the GDS file into the newer formats used by later versions.
 
 # Installation
