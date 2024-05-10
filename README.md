@@ -33,7 +33,6 @@ Please flatten the whole hierachy for extraction. You may consider copy and past
 - [ ] Python x64, 2.7 to 3.9 ONLY (Tested on 3.9, x64).
 - [ ] Klayout 0.26.12 Python API 
 - [ ] LumAPI
-- [ ] PyQt6
 
 # Installation Instructions
 1. Install Python 3.9 x64
