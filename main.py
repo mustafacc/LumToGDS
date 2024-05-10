@@ -5,13 +5,19 @@ sys.path.append("C:\\Program Files\\Lumerical\\v241\\api\\python\\")
 sys.path.append(os.path.dirname(__file__)) #Current directory
 import lumapi
 import numpy as np
+from numpy import savetxt
+from numpy import loadtxt
 import re
+
+layer_unassigned = 99 #value to give a layer if it wasn't assigned by the user
 
 #Run Lum files
 def main():
     metadata, dupe, ori = get_object_metadata()
-    assign_layerinfo(metadata,dupe,ori)
-    #run klayout python
+    layerinfo = assign_layerinfo(metadata,dupe,ori)
+    #TODO: May 10, format the output needed by lumerical macro
+    #TODO: Run export script
+    #TODO: Klayout conversion.
 
 def get_object_metadata():
     FDTD = lumapi.FDTD(hide=True, filename="example/test.fsp")
@@ -20,12 +26,11 @@ def get_object_metadata():
     metadata = FDTD.get_objects_info() #calls the function from LSF
     
     dupdata = FDTD.get_duplicate_layers(metadata)
-    dupe = dupdata[:,1]
-    ori = dupdata[:,0]
+    dupe = dupdata[:,1]-1 #lumerical uses index starting at 1, so -1 is necessary
+    ori = dupdata[:,0]-1
     dupe = np.delete(dupe,0) #strip of the -1 index that Lumerical cannot remove (index lines up with names of the dictionaries)
     ori = np.delete(ori,0)
     
-    #print(dupe)
     return metadata,dupe,ori
 
 def assign_layerinfo(metadata,dupe,ori,loadfile=False,savefile=True,filename="layerinfo"):
@@ -35,13 +40,17 @@ def assign_layerinfo(metadata,dupe,ori,loadfile=False,savefile=True,filename="la
     
     if not loadfile:
         layerinfo = layerinfo_creator_UI(metadata,dupe,ori,layerinfo)
-        
+            
     #import a defined matrix
     else:
-        print("TBD: load from file")
+        loadtxt('{}.csv'.format(filename), delimiter=',') #maybe needs fmt="%d" ?
+        print("Loading layer from: {}.csv".format(filename))
+    
+    layerinfo = format_for_lum(layerinfo)
     
     if savefile:
-        print("TBD: save to file")
+        savetxt('{}.csv'.format(filename), layerinfo, delimiter=',',fmt="%d")
+        print("Layer Assignment saved to file: {}.csv".format(filename))
     
     return layerinfo
 
@@ -54,8 +63,6 @@ def layerinfo_creator_UI(metadata,dupe,ori,layerinfo):
     #calculate regex range
     rangesupported = True
     table_length = len(metadata['material'])
-    
-    print(table_length)
     if table_length < 10:
         regex_obj = "([0-{}])".format(int(table_length))
     elif table_length >= 10 and table_length < 100:
@@ -119,6 +126,7 @@ def layerinfo_creator_UI(metadata,dupe,ori,layerinfo):
             
         else:
             commandoutput = "\nOutput: Command Error.\n"
+    
     return layerinfo
 
 def layer_table(metadata,dupe,ori,layertable):
@@ -168,6 +176,13 @@ def layer_table(metadata,dupe,ori,layertable):
                 output = output+ (entry1+" | "+entry2+" | "+entry3+" | "+entry4+" | "+entry5+" | \n")
     
     return output
+
+def format_for_lum(layerinfo):
+    #TODO May 10
+    for i in range(0,len(layerinfo)):
+        if layerinfo[i][0] == None:
+            layerinfo[i][0] = layer_unassigned
+    return layerinfo
                 
 def generate_export_info(metadata,dupe,ori,layerinfo,optionsettings):
     #using a given layer info, write out the array needed by Lumerical's export function
