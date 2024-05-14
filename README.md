@@ -62,7 +62,7 @@ Please flatten the whole hierachy for extraction. You may consider copy and past
 3. A command-line window should pop up. If the readout confirms successs GDS extraction, you can close the CMD window.
 4. Navigate to where you have saved the folder containing the export2gds library. Under the "output" folder, you should find your exported file "lumexport.gds"
 - Do not delete the output folder
-- .gds files in the output folder will be merged into lumexport and deleted automatically. Please do not save important files in this folder.
+- File names beginnning with `TEMP_output` and ending with `.gds` in the output folder will be merged into lumexport and deleted automatically. To avoid any chance of accidental deletion, please do not save important files in this folder.
 
 ## Python Wizard Method
 `TO BE ADDED.`

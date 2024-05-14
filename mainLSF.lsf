@@ -8,6 +8,10 @@
 #Please use the python3.9 method or converter script if 
 #you wish to use it for later Klayout versions.
 
+#Script has be in the library folder to properly call other library files.
+thispath=splitstring(currentscriptname,"mainLSF.lsf");
+cd(thispath{1});
+
 #DEFAULT SETTINGS for Lumerical's library
 n_circle = 64;	# number of sides to use for circle approximation (64 by default).
 n_ring = 64;	# number of slices to use for ring approximation (64 by default).
@@ -120,7 +124,7 @@ if(out==0){
 }
 else if(out==1){
 	if (wizardgetdata(1)!=""){gds_filename_temp = "output/"+wizardgetdata(1);}
-	else{gds_filename_temp = "output/output";}
+	else{gds_filename_temp = "output/TEMP_output";}
 	if (wizardgetdata(2)!=""){top_cell = wizardgetdata(2);}
 	else{top_cell = "model";}
 

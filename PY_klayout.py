@@ -35,7 +35,7 @@ def klayout_mergefiles(directory="output",outputname = "lumexport.gds",removetem
     top_cell = ly.create_cell("TOP")
     
     for file in os.listdir(directory):
-        if file.endswith(".gds"):
+        if file.endswith(".gds") and file.startswith("TEMP_output"):
             ly_import = db.Layout()
             ly_import.read(os.path.join(directory, file))
             imported_top_cell = ly_import.top_cell()

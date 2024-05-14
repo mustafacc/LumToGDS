@@ -1,0 +1,40 @@
+#DEFAULT SETTINGS for Lumerical's library
+n_circle = 64;	# number of sides to use for circle approximation (64 by default).
+n_ring = 64;	# number of slices to use for ring approximation (64 by default).
+n_custom = 64;	# number of slices to use for custom approximation (64 by default).
+n_wg = 64;		# number of slices to use for waveguide approximation (64 by default). 
+round_to_nm = 1;	# round the z and z span to the nearest integer of nm
+grid = 1e-9;	# Round XY coordinates to this grid in SI. Will also update the database units if grid < 
+max_objects = 10000;	# the maximum number of objects within the workspace (Increasing this will increase export time)
+Lumerical_GDS_autoexp_functions; #loads the necessary functions
+LUM_auto_detect;
+
+gds_filename_temp = "output/TEMP_"+gds_filename_temp;
+
+#For scenarios where 2 objects have same height, we disable and enable as we export.       
+for (a=1;a<=length(metadata.name);a=a+1){
+	select(metadata.name{a});
+	set("enabled",false);           
+}	
+
+layer_def_temp = layer_def; #write the layer values to a temp variable
+for (a=1;a<=length(metadata.name);a=a+1){ #cannot use i, it is used by the encrypted function and cleared
+	layer_def = layer_def_temp(a,:); #the export function must use "layer_def" as the variable	
+	gds_filename = gds_filename_temp+num2str(a)+".gds";	
+                         
+	select(metadata.name{a});
+	set("enabled",true);		
+	#print(layer_def);
+	Lumerical_GDS_autoexp; #this executes the gds export encrypted function
+	select(metadata.name{a});		
+	set("enabled",false);	
+}
+
+#reset back to original
+for (a=1;a<=length(metadata.name);a=a+1){
+    select(metadata.name{a});
+    set("enabled",true);           
+}	
+
+clear;
+clearfunctions;

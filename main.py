@@ -9,44 +9,70 @@ from numpy import savetxt
 from numpy import loadtxt
 import re
 
-layer_unassigned = 99 #value to give a layer if it wasn't assigned by the user
+class setting:
+    INPUT_FILENAME = "example/test.fsp" #path to file, the root folder is the library directory.
+    EXPORT_FILENAME = "lumexport.gds" #Final file name
+    LAYER_UNASSIGNED = 99 #value to give a layer if it wasn't assigned by the user
+    DEFAULT_GDS_NAME_TEMP = "output" #intermediate file name
+    DEFAULT_TOP_CELL_NAME = "model" #top cell name of the GDS, required by Lumerical Functions, doesn't seem to be functional?
+    HIDE_LUMERICAL = True
+    
+    #Advanced settings (Lumerical Export Function)
+    n_circle = 64;	# number of sides to use for circle approximation (64 by default).
+    n_ring = 64;	# number of slices to use for ring approximation (64 by default).
+    n_custom = 64;	# number of slices to use for custom approximation (64 by default).
+    n_wg = 64;		# number of slices to use for waveguide approximation (64 by default). 
+    round_to_nm = 1;	# round the z and z span to the nearest integer of nm
+    grid = 1e-9;	# Round XY coordinates to this grid in SI. Will also update the database units if grid < 
+    max_objects = 10000;	# the maximum number of objects within the workspace (Increasing this will increase export time)
 
 #Run Lum files
-def main():
-    metadata, dupe, ori = get_object_metadata()
+#TODO add in configurable files.
+def main(SETTING = setting()):
+    metadata, dupe, ori, FDTD = get_object_metadata()
     layerinfo = assign_layerinfo(metadata,dupe,ori)
-    #TODO: May 10, format the output needed by lumerical macro
-    #TODO: Run export script
-    #TODO: Klayout conversion.
+    export2gds(
+        FDTD,
+        layerinfo,
+        metadata,
+        dupe,
+        ori,
+        )
+    if PY_klayout.klayout_mergefiles():
+        print("Success: Export Complete.")
+    else:
+        print("Error: Final merge step did not complete.")
 
-def get_object_metadata():
-    FDTD = lumapi.FDTD(hide=True, filename="example/test.fsp")
+def get_object_metadata(SETTING=setting()):
+    FDTD = lumapi.FDTD(hide=SETTING.HIDE_LUMERICAL, filename=SETTING.INPUT_FILENAME)
     code = open('LUM_auto_detect.lsf', 'r').read()
     FDTD.eval(code) #loads the function into Lumerical
     metadata = FDTD.get_objects_info() #calls the function from LSF
+    print(type(metadata))
     
     dupdata = FDTD.get_duplicate_layers(metadata)
     dupe = dupdata[:,1]-1 #lumerical uses index starting at 1, so -1 is necessary
     ori = dupdata[:,0]-1
     dupe = np.delete(dupe,0) #strip of the -1 index that Lumerical cannot remove (index lines up with names of the dictionaries)
     ori = np.delete(ori,0)
+    dupe = [int(item) for item in dupe]
+    ori = [int(item) for item in ori]
     
-    return metadata,dupe,ori
+    return metadata,dupe,ori,FDTD
 
-def assign_layerinfo(metadata,dupe,ori,loadfile=False,savefile=True,filename="layerinfo"):
+def assign_layerinfo(metadata,dupe,ori,loadfile=False,savefile=True,filename="layerinfo",SETTING=setting()):
     #automatically assign the layers based on material, then heights
     #can have a full list of Lumerical's material names, ahve it written that way
-    layerinfo = []
-    
     if not loadfile:
-        layerinfo = layerinfo_creator_UI(metadata,dupe,ori,layerinfo)
-            
+        layerinfo = layerinfo_creator_UI(metadata,dupe,ori)
+        #replace any unassigned layers with the default layer number
+        for i in range(0,len(layerinfo)):
+            if layerinfo[i][0] == None:
+                layerinfo[i][0] = SETTING.LAYER_UNASSIGNED    
     #import a defined matrix
     else:
-        loadtxt('{}.csv'.format(filename), delimiter=',') #maybe needs fmt="%d" ?
+        layerinfo = loadtxt('{}.csv'.format(filename), delimiter=',') #maybe needs fmt="%d" ?
         print("Loading layer from: {}.csv".format(filename))
-    
-    layerinfo = format_for_lum(layerinfo)
     
     if savefile:
         savetxt('{}.csv'.format(filename), layerinfo, delimiter=',',fmt="%d")
@@ -54,8 +80,8 @@ def assign_layerinfo(metadata,dupe,ori,loadfile=False,savefile=True,filename="la
     
     return layerinfo
 
-def layerinfo_creator_UI(metadata,dupe,ori,layerinfo):
-    #similar as the GUI wizard, printout asking for layer assignments
+def layerinfo_creator_UI(metadata,dupe,ori):
+    #similar as the GUI wizard, CMD UI asking for layer assignments
     layerinfo = [[0 for i in range(2)] for j in range(len(metadata['material']))]
     for layer in layerinfo:
         layer[0] = None
@@ -130,6 +156,7 @@ def layerinfo_creator_UI(metadata,dupe,ori,layerinfo):
     return layerinfo
 
 def layer_table(metadata,dupe,ori,layertable):
+    #Prints out the layer table information
     header1= "Obj#"
     header1= '{:<7}'.format(header1[:7])
     header2= "Layer"
@@ -177,18 +204,44 @@ def layer_table(metadata,dupe,ori,layertable):
     
     return output
 
-def format_for_lum(layerinfo):
-    #TODO May 10
-    for i in range(0,len(layerinfo)):
-        if layerinfo[i][0] == None:
-            layerinfo[i][0] = layer_unassigned
-    return layerinfo
-                
-def generate_export_info(metadata,dupe,ori,layerinfo,optionsettings):
-    #using a given layer info, write out the array needed by Lumerical's export function
-    #takes in option settings as well
-    exportinfo = [] #formatted info
-    return exportinfo
-
+def export2gds(FDTD,layerinfo,metadata,dupe,ori,SETTING=setting()):
+    #A copy of the latter half of the LSF GUI wizard
+    #checks if the layer entry is a duplicate, if it is, copy the duplicate's original values
+    #if not, write to the format used by Lumerical's export functions    
+    layer_def = np.empty(shape=(len(metadata['material']),4))
+    for i in range(len(metadata['material'])):
+        if i==any(dupe):
+             for j in range(len(dupe)):
+                 if i==dupe[j]:
+                      layer_def[i][0] = layer_def[ori[j]][0]
+                      layer_def[i][1] = layer_def[ori[j]][1]
+                      layer_def[i][2] = layer_def[ori[j]][2]
+                      layer_def[i][3] = layer_def[ori[j]][3]
+        else:
+            layer_def[i][0] = layerinfo[i][0]
+            layer_def[i][1] = layerinfo[i][1]
+            layer_def[i][2] = metadata['zmin'][i]                      
+            layer_def[i][3] = metadata['zmax'][i]    
+    
+    #Directory needs to be changed to the libraries one to properly import lumerical's encrypted functions          
+    thispath = os.path.dirname(os.path.abspath(__file__))
+    thispath = thispath.replace(os.sep, '/')
+    FDTD.eval("cd('"+thispath+"');")
+    
+    #putv can be used to pass variables, this is used here because sometimes LSF method of importing scripts doesn't work in nested functions
+    code = open('PY_exportmacro.lsf', 'r').read()
+    FDTD.putv('metadata',metadata)
+    FDTD.putv('layer_def',layer_def)
+    FDTD.putv('gds_filename_temp',SETTING.DEFAULT_GDS_NAME_TEMP)
+    FDTD.putv('top_cell',SETTING.DEFAULT_TOP_CELL_NAME)
+    FDTD.putv('n_circle',SETTING.n_circle)
+    FDTD.putv('n_ring',SETTING.n_ring)
+    FDTD.putv('n_custom',SETTING.n_custom)
+    FDTD.putv('n_wg',SETTING.n_wg)
+    FDTD.putv('round_to_nm',SETTING.round_to_nm)
+    FDTD.putv('grid',SETTING.grid)
+    FDTD.putv('max_objects',SETTING.max_objects)
+    FDTD.eval(code) #loads the function into Lumerical
+    
 if __name__ == "__main__":
     main()
