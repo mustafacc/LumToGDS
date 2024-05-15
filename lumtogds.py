@@ -8,6 +8,7 @@ import numpy as np
 from numpy import savetxt
 from numpy import loadtxt
 import re
+from pathlib import Path
 
 class setting:
     INPUT_FILENAME = "example/test.fsp"           #STRING: path to file, the root folder is the library directory.
@@ -74,11 +75,20 @@ def assign_layerinfo(metadata,dupe,ori,SETTING=setting()):
         for i in range(0,len(layerinfo)):
             if layerinfo[i][0] == None:
                 layerinfo[i][0] = SETTING.LAYER_UNASSIGNED    
-    #import a defined matrix
-    else:
-        layerinfo = loadtxt('{}.csv'.format(SETTING.LOAD_LAYER_FILENAME), delimiter=',') #maybe needs fmt="%d" ?
-        print("Loading layer from: {}.csv".format(SETTING.LOAD_LAYER_FILENAME))
     
+    #Load an existing layer file
+    else:        
+        if Path(SETTING.LOAD_LAYER_FILENAME+".csv").is_file():
+            layerinfo = loadtxt('{}.csv'.format(SETTING.LOAD_LAYER_FILENAME), delimiter=',') #maybe needs fmt="%d" ?
+            print("Loading layer from: {}.csv".format(SETTING.LOAD_LAYER_FILENAME))
+        else:
+            input("Layer Assignemnt File not found. Defaulting to Python UI. Press enter to continue.")
+            layerinfo = layerinfo_creator_UI(metadata,dupe,ori)
+            #replace any unassigned layers with the default layer number
+            for i in range(0,len(layerinfo)):
+                if layerinfo[i][0] == None:
+                    layerinfo[i][0] = SETTING.LAYER_UNASSIGNED
+            
     if SETTING.SAVE_LAYER_FILE:
         savetxt('{}.csv'.format(SETTING.SAVE_LAYER_FILENAME), layerinfo, delimiter=',',fmt="%d")
         print("Layer Assignment saved to file: {}.csv".format(SETTING.SAVE_LAYER_FILENAME))
