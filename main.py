@@ -1,6 +1,6 @@
-import export2gds
+import lumtogds
 
-mysetting = export2gds.setting()
+mysetting = lumtogds.setting()
 mysetting.INPUT_FILENAME = "example/test.fsp"           #STRING: path to file, the root folder is the library directory.
 mysetting.EXPORT_FILENAME = "lumexport.gds"             #STRING: Final file name, saves in the "output" folder
 mysetting.LAYER_UNASSIGNED = 99                         #INT: value to give a layer if it wasn't assigned by the user
@@ -21,4 +21,4 @@ mysetting.round_to_nm = 1;	    # round the z and z span to the nearest integer o
 mysetting.grid = 1e-9;	        # Round XY coordinates to this grid in SI. Will also update the database units if grid < 
 mysetting.max_objects = 10000;	# the maximum number of objects within the workspace (Increasing this will increase export time)
 
-export2gds.main(mysetting)
+lumtogds.main(mysetting)

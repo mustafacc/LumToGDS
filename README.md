@@ -1,4 +1,4 @@
-# export2gds
+# LumToGDS
 Lumerical GUI Wizard and Python Library for exporting geometries into GDS format.
 Wrapper built around functions released by Lumerical: [Link](https://optics.ansys.com/hc/en-us/articles/1500006203341-GDSII-Export-Automation)
 
@@ -66,17 +66,17 @@ Please flatten the whole hierachy for extraction. You may consider copy and past
     - Objects with same material will automatically use the same entry, simplifying the entry process.
     - Objects with the same material and different height will each require an entry.
 3. A command-line window should pop up. If the readout confirms successs GDS extraction, you can close the CMD window.
-4. Navigate to where you have saved the folder containing the export2gds library. Under the "output" folder, you should find your exported file "lumexport.gds"
+4. Navigate to where you have saved the folder containing the LumToGDS library. Under the "output" folder, you should find your exported file "lumexport.gds"
 
 ## Python Method
 Example available in `Main.py`.
-1. `Import export2gds`.
+1. `Import lumtogds`.
 2. Creating a settings object with the parameters you wish to run the export with.
 3. call `main()`
     - If the layer assignment is not loaded from a file, the command-line will provide a UI to create layer assignments.
 
 # Example File
-A makefile is provided that generates geoemtries in different situations to demonstrate export2gds' functionality.
+A makefile is provided that generates geoemtries in different situations to demonstrate LumToGDS' functionality.
 1. Launch FDTD and load/run the script `example/example_makefile.lsf`
 2. Run via the LSF Wizard Method or Python Method.
 
