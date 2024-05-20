@@ -32,7 +32,7 @@ Please flatten the whole hierachy for extraction. You may consider copy and past
 
 # Installation
 ## Python Prerequistes
-- [ ] Python x64, 2.7 to 3.9 ONLY (Tested on 3.9, x64).
+- [ ] Python x64, 3.9 ONLY (Tested on 3.9, x64).
 - [ ] Klayout 0.26.12 Python API 
 - [ ] LumAPI
 
