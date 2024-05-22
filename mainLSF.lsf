@@ -113,7 +113,7 @@ wizardwidget("label","Export Configuration (Leave blank for defaults)");
 wizardwidget("string","GDS Filename\t(\"output.gds\"):","output.gds");
 wizardwidget("string","Top Cell\t(\"model\"):",",model");
 wizardwidget("label","==Layers Export Information==");
-wizardwidget("label","Name\t\tLy\tDat\tZmin\tZmax");
+wizardwidget("label","Name\tLy\tDat\tZmin\tZmax");
 for (i=1;i<=length(layer_def(:,1));i=i+1){
    wizardwidget("label",metadata.name{i}+"\t"+num2str(layer_def(i,1))+"\t"+num2str(layer_def(i,2))+"\t"+num2str(layer_def(i,3)*1e6)+"\t"+num2str(layer_def(i,4)*1e6)); 
 }
