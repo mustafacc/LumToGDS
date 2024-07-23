@@ -32,7 +32,7 @@ This wrapper uses a command-line Klayout 0.26 to resave GDS files to make them c
 - Do not delete the output folder
 - File names beginnning with `TEMP_output` and ending with `.gds` in the output folder will be merged into `lumexport.gds` and deleted automatically. To avoid any chance of accidental deletion, please do not save important files in this folder.
 
-## LSF Wizard Method
+## Via LSF
 1. Launch Lumerical FDTD and load your .fsp file you wish to extract.
 2. In the script editor, load "mainLSF.lsf" and click "Run".
     - A wizard should pop up and provide you with the detected objects for confirmation
@@ -42,7 +42,7 @@ This wrapper uses a command-line Klayout 0.26 to resave GDS files to make them c
 3. A command-line window should pop up. If the readout confirms successs GDS extraction, you can close the CMD window.
 4. Navigate to where you have saved the folder containing the LumToGDS library. Under the "output" folder, you should find your exported file "lumexport.gds"
 
-## Python Method
+## Via Python
 Example available in `Main.py`.
 1. `Import lumtogds`.
 2. Creating a settings object with the parameters you wish to run the export with.
