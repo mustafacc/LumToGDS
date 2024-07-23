@@ -4,32 +4,6 @@ Wrapper built around functions released by Lumerical: [Link](https://optics.ansy
 
 This wrapper uses a command-line Klayout 0.26 to resave GDS files to make them compatible with later Klayout releases.
 
-# What does it do?
-## LSF Wizard
-1. Automatically extracts all geometries from the object hierarchy tree (note limitations, see below).
-2. Prompts the user with a Wizard to quickly set the layer information for each detected, unique, object.
-3. Exports all unique objects to a standalone GDS (Klayout 0.26 format, see limitations).
-4. Merges all GDS into a single file.
-5. Converts to up-to-date Klayout format by resaving using Klayout 0.26.
-
-## Python Wizard
-1. Uses `LumAPI` and `mainLSF.lsf` to obtain the object tree from Lumerical.
-2. Attempts to load a Layer Assignment File (numpy array). If none found, a CMD UI procedure will be used to create layer assignments. Users can save the file to avoiding requiring manual assignment again.
-3. Each object is exported into a GDS file.
-4. All GDS files are merged into a single file.
-5. Converts to up-to-date Klayout format by resvaing using Klayout 0.26.
-
-## Limitations - Geometry Objects
-- Geometry objects in the Lumerical object tree MUST have unique names. Same names will be overwritten by newer entries, no error will be prompted.
-- Geoemtry objects cannot be nested (e.g. Groups, such as containers, structure groups, analysis groups, etc.). 
-Please flatten the whole hierachy for extraction. You may consider copy and pasting the tree into a new FDTD instance by selecting the tree and ctrl+c/ctrl+v into a new FDTD file.
-
-## Limitations - Klayout GDS Format Versions
-- Klayout 0.27 went through a massive data structure update for GDS files resulting in an error when attempting to open files extracted by the functions provided by Lumerical. 
-- Lumerical has confirmed there are no plans to update the function for newer Klayout versions at this time.
-    - Please submit a feature request via: the [Ideas Exchange portal](https://ix.lumerical.com/) if you are interested in having newer versions supported. With enough interest, the Lumerical team will prioritize updating the functions.
-- As a workaround, saving in Klayout 0.26 will update the GDS file into the newer formats used by later versions.
-
 # Installation
 ## Python Prerequistes
 - [ ] Python x64, 3.9 ONLY (Tested on 3.9, x64).
@@ -79,6 +53,32 @@ Example available in `Main.py`.
 A makefile is provided that generates geoemtries in different situations to demonstrate LumToGDS' functionality.
 1. Launch FDTD and load/run the script `example/example_makefile.lsf`
 2. Run via the LSF Wizard Method or Python Method.
+
+# What does it do?
+## LSF Wizard
+1. Automatically extracts all geometries from the object hierarchy tree (note limitations, see below).
+2. Prompts the user with a Wizard to quickly set the layer information for each detected, unique, object.
+3. Exports all unique objects to a standalone GDS (Klayout 0.26 format, see limitations).
+4. Merges all GDS into a single file.
+5. Converts to up-to-date Klayout format by resaving using Klayout 0.26.
+
+## Python Wizard
+1. Uses `LumAPI` and `mainLSF.lsf` to obtain the object tree from Lumerical.
+2. Attempts to load a Layer Assignment File (numpy array). If none found, a CMD UI procedure will be used to create layer assignments. Users can save the file to avoiding requiring manual assignment again.
+3. Each object is exported into a GDS file.
+4. All GDS files are merged into a single file.
+5. Converts to up-to-date Klayout format by resvaing using Klayout 0.26.
+
+## Limitations - Geometry Objects
+- Geometry objects in the Lumerical object tree MUST have unique names. Same names will be overwritten by newer entries, no error will be prompted.
+- Geoemtry objects cannot be nested (e.g. Groups, such as containers, structure groups, analysis groups, etc.). 
+Please flatten the whole hierachy for extraction. You may consider copy and pasting the tree into a new FDTD instance by selecting the tree and ctrl+c/ctrl+v into a new FDTD file.
+
+## Limitations - Klayout GDS Format Versions
+- Klayout 0.27 went through a massive data structure update for GDS files resulting in an error when attempting to open files extracted by the functions provided by Lumerical. 
+- Lumerical has confirmed there are no plans to update the function for newer Klayout versions at this time.
+    - Please submit a feature request via: the [Ideas Exchange portal](https://ix.lumerical.com/) if you are interested in having newer versions supported. With enough interest, the Lumerical team will prioritize updating the functions.
+- As a workaround, saving in Klayout 0.26 will update the GDS file into the newer formats used by later versions.
 
 # For Complex geometries:
 Please see this extraction method: [Link](https://optics.ansys.com/hc/en-us/articles/1500007228522-GDS-pattern-extraction-for-inverse-designed-devices-using-contours-method)
