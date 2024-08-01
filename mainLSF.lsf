@@ -13,14 +13,15 @@ thispath=splitstring(currentscriptname,"mainLSF.lsf");
 cd(thispath{1});
 
 #DEFAULT SETTINGS for Lumerical's library
-n_circle = 64;	# number of sides to use for circle approximation (64 by default).
-n_ring = 64;	# number of slices to use for ring approximation (64 by default).
-n_custom = 64;	# number of slices to use for custom approximation (64 by default).
-n_wg = 64;		# number of slices to use for waveguide approximation (64 by default). 
-round_to_nm = 1;	# round the z and z span to the nearest integer of nm
-grid = 1e-9;	# Round XY coordinates to this grid in SI. Will also update the database units if grid < 
-max_objects = 10000;	# the maximum number of objects within the workspace (Increasing this will increase export time)
-Lumerical_GDS_autoexp_functions; #loads the necessary functions
+#n_circle = 64;	# number of sides to use for circle approximation (64 by default).
+#n_ring = 64;	# number of slices to use for ring approximation (64 by default).
+#n_custom = 64;	# number of slices to use for custom approximation (64 by default).
+#n_wg = 64;		# number of slices to use for waveguide approximation (64 by default). 
+#round_to_nm = 1;	# round the z and z span to the nearest integer of nm
+#grid = 1e-9;	# Round XY coordinates to this grid in SI. Will also update the database units if grid < 
+#max_objects = 10000;	# the maximum number of objects within the workspace (Increasing this will increase export time)
+#Lumerical_GDS_autoexp_functions; #loads the necessary functions
+GDSexport_core;
 LUM_auto_detect;
 
 #FUNCTIONS
@@ -29,9 +30,15 @@ function draw_entry_page(i,metadata,dupdata){
     else{newwizardpage("Next","Back");}
     
     wizardwidget("label","Entry "+num2str(i)+endl);
-    wizardwidget("label","Material:\t\t"+metadata.material{i});
-    wizardwidget("label","Dimension, z max:\t"+num2str(metadata.zmax{i}*1e6)+" [um]");
-    wizardwidget("label","Dimension, z min:\t"+num2str(metadata.zmin{i}*1e6)+" [um]");
+    if(metadata.material{i} == "<Object defined dielectric>"){
+        wizardwidget("label","Material:\tIndex = "+metadata.index{i});
+    }
+    else{
+        wizardwidget("label","Material:\t"+metadata.material{i});
+    }
+    wizardwidget("label","Z max:\t\t"+num2str(metadata.zmax{i}*1e6)+"\t[um]");
+    wizardwidget("label","Z min:\t\t"+num2str(metadata.zmin{i}*1e6)+"\t[um]");
+    wizardwidget("label","Z pos:\t\t"+num2str((metadata.zmax{i}+metadata.zmin{i})/2*1e6)+"\t[um]");    
     wizardwidget("label",endl);
     if(any(i==dupdata(:,2))){wizardwidget("label","<This object has a shared layer>");}
     else{    
@@ -46,7 +53,8 @@ dupdata = get_duplicate_layers(metadata);
 dupe = dupdata(:,2);
 ori = dupdata(:,1);
 #metadata = format_layerdata(objectinfo,dupdata(:,2));
-layer_def = matrix(length(metadata.material),4); #exported to the gds generator script
+#layer_def = matrix(length(metadata.material),4); #exported to the gds generator script
+layer_def_list = cell(length(metadata.material));
 
 #Create Wizard
 newwizard(500,200,"Stack Definition Wizard");
@@ -57,11 +65,17 @@ wizardoption("margin",20);
 newwizardpage("Continue");
 
 wizardwidget("label",endl+"The following layer information was auto-detected:"+endl);
-wizardwidget("label","Total Layers: "+num2str(length(metadata.material))); #list number of layers
-wizardwidget("label","Layer Materials Detected:"+endl); #list all materials used in the file
+wizardwidget("label","Unique Objects: "+num2str(length(metadata.material))); #list number of layers
+wizardwidget("label","Materials Detected:"+endl); #list all materials used in the file
 for (i=1;i<=length(metadata.material);i=i+1){
    if(!any(i==dupdata(:,2))){
-       wizardwidget("label",metadata.material{i});
+       #wizardwidget("label",metadata.material{i});
+       if (metadata.material{i} == "<Object defined dielectric>"){
+           wizardwidget("label",">\tIndex = "+metadata.index{i});  
+       }
+       else{
+           wizardwidget("label",">\t"+metadata.material{i});
+       }
        }
 }
 out = runwizard; #0 = cancel, 1 is button 1, -1 is button 2
@@ -83,18 +97,31 @@ for(i=1;i<=length(metadata.material);0){
          if(any(i==dupdata(:,2))){
              for(j=1;j<=length(dupe);j=j+1){
                  if(i==dupe(j)){
-                      layer_def(i,1) = layer_def(ori(j),1);
-                      layer_def(i,2) = layer_def(ori(j),2);
-	               layer_def(i,3) = layer_def(ori(j),3);        
-	              layer_def(i,4) = layer_def(ori(j),4);
+                      #layer_def(i,1) = layer_def(ori(j),1);
+                      #layer_def(i,2) = layer_def(ori(j),2);
+	               #layer_def(i,3) = layer_def(ori(j),3);        
+	               #layer_def(i,4) = layer_def(ori(j),4);
+	               layer_def_list{i} = struct;
+	               layer_def_list{i}.layer = layer_def_list{ori(j)}.layer;
+	               layer_def_list{i}.z = layer_def_list{ori(j)}.z;
+	               layer_def_list{i}.material = layer_def_list{ori(j)}.material; 
                      }                 
                  }
              }         
          else{
-	  layer_def(i,1) = wizardgetdata(2);
-	  layer_def(i,2) = wizardgetdata(3);
-	  layer_def(i,3) = metadata.zmin{i};        
-	  layer_def(i,4) = metadata.zmax{i};
+	  #layer_def(i,1) = wizardgetdata(2);
+	  #layer_def(i,2) = wizardgetdata(3);
+	  #layer_def(i,3) = metadata.zmin{i};        
+	  #layer_def(i,4) = metadata.zmax{i};
+	  layer_def_list{i} = struct;
+	  layer_def_list{i}.layer = num2str(wizardgetdata(2))+":"+num2str(wizardgetdata(3));
+	  layer_def_list{i}.z = (metadata.zmin{i}+metadata.zmax{i})/2;
+         if (metadata.material{i} == "<Object defined dielectric>"){	  
+	      layer_def_list{i}.material = metadata.index{i};
+         }
+         else{
+             layer_def_list{i}.material = metadata.material{i};
+         }
          }
 	  i=i+1;       
    }
@@ -113,9 +140,11 @@ wizardwidget("label","Export Configuration (Leave blank for defaults)");
 wizardwidget("string","GDS Filename\t(\"output.gds\"):","output.gds");
 wizardwidget("string","Top Cell\t(\"model\"):",",model");
 wizardwidget("label","==Layers Export Information==");
-wizardwidget("label","Name\tLy\tDat\tZmin\tZmax");
-for (i=1;i<=length(layer_def(:,1));i=i+1){
-   wizardwidget("label",metadata.name{i}+"\t"+num2str(layer_def(i,1))+"\t"+num2str(layer_def(i,2))+"\t"+num2str(layer_def(i,3)*1e6)+"\t"+num2str(layer_def(i,4)*1e6)); 
+#wizardwidget("label","Name\tLy\tDat\tZmin\tZmax");
+wizardwidget("label","Name\tLayer\tZpos");
+for (i=1;i<=length(layer_def_list);i=i+1){
+   #wizardwidget("label",metadata.name{i}+"\t"+num2str(layer_def(i,1))+"\t"+num2str(layer_def(i,2))+"\t"+num2str(layer_def(i,3)*1e6)+"\t"+num2str(layer_def(i,4)*1e6)); 
+   wizardwidget("label",metadata.name{i}+"\t"+layer_def_list{i}.layer+"\t"+num2str(layer_def_list{i}.z)); 
 }
 
 out = runwizard;
@@ -136,15 +165,26 @@ else if(out==1){
 		set("enabled",false);           
 	}	
 
-	layer_def_temp = layer_def; #write the layer values to a temp variable
+	#layer_def_temp = layer_def_list; #write the layer values to a temp variable
 	for (a=1;a<=length(metadata.name);a=a+1){ #cannot use i, it is used by the encrypted function and cleared
-		layer_def = layer_def_temp(a,:); #the export function must use "layer_def" as the variable	
+		#layer_def = layer_def_temp(a,:); #the export function must use "layer_def" as the variable	
+               layer_def = cell(1);
+               layer_def{1} = layer_def_list{a};		
 		gds_filename = gds_filename_temp+num2str(a)+".gds";	
                              
 		select(metadata.name{a});
 		set("enabled",true);		
 		#print(layer_def);
-		Lumerical_GDS_autoexp; #this executes the gds export encrypted function
+		#Lumerical_GDS_autoexp; #this executes the gds export encrypted function
+		
+                f_name = gdsopen(gds_filename);
+                level_list = get_level_list("::model::");
+                verbose = false;
+                try{
+                stck = extract_gds(level_list, layer_def, 0, f_name, verbose);
+                }
+                gdsclose(f_name);
+		
 		select(metadata.name{a});		
 		set("enabled",false);	
 	}
@@ -157,24 +197,31 @@ for (a=1;a<=length(metadata.name);a=a+1){
 clearfunctions;
 clear(gds_filename);
 clear(gds_filename_temp);
-clear(grid);
-clear(layer_no);
-clear(max_objects);
-clear(n_circle);
-clear(n_custom);
-clear(n_ring);
-clear(n_wg);
-clear(orig_layer_def);
+#clear(grid);
+#clear(layer_no);
+#clear(max_objects);
+#clear(n_circle);
+#clear(n_custom);
+#clear(n_ring);
+#clear(n_wg);
+#clear(orig_layer_def);
 clear(out);
-clear(round_to_nm);
+#clear(round_to_nm);
 clear(top_cell);
-clear(layer_def);
-clear(layer_def_temp);
+clear(layer_def_list);
+#clear(layer_def_temp);
 clear(a);
 clear(metadata);
 clear(dupdata);
 clear(dupe);
 clear(ori);
 clear(j);
+clear(f_name);
+clear(i);
+clear(layer_def);
+clear(level_list);
+clear(stck);
+clear(thispath);
+clear(verbose);
 
 python("PY_klayout.py"); #Converts and merges the output file to be usable with up to date Klayout versions
