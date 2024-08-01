@@ -24,15 +24,17 @@ class setting:
     LOAD_LAYER_FILENAME = "example/mylayercsv"    #STRING: output file will have .csv extension
     SAVE_LAYER_FILE = True                        #BOOLEAN: True to save the generated layer file from the python CMD as .csv
     SAVE_LAYER_FILENAME = "example/mylayercsv"    #STRING: Filename to save .csv 
-    
+
+    #DEPRECATED    
     #Advanced settings (Lumerical Export Function)
-    n_circle = 64;	# number of sides to use for circle approximation (64 by default).
-    n_ring = 64;	# number of slices to use for ring approximation (64 by default).
-    n_custom = 64;	# number of slices to use for custom approximation (64 by default).
-    n_wg = 64;		# number of slices to use for waveguide approximation (64 by default). 
-    round_to_nm = 1;	# round the z and z span to the nearest integer of nm
-    grid = 1e-9;	# Round XY coordinates to this grid in SI. Will also update the database units if grid < 
-    max_objects = 10000;	# the maximum number of objects within the workspace (Increasing this will increase export time)
+    # n_circle = 64;	# number of sides to use for circle approximation (64 by default).
+    # n_ring = 64;	# number of slices to use for ring approximation (64 by default).
+    # n_custom = 64;	# number of slices to use for custom approximation (64 by default).
+    # n_wg = 64;		# number of slices to use for waveguide approximation (64 by default). 
+    # round_to_nm = 1;	# round the z and z span to the nearest integer of nm
+    # grid = 1e-9;	# Round XY coordinates to this grid in SI. Will also update the database units if grid < 
+    # max_objects = 10000;	# the maximum number of objects within the workspace (Increasing this will increase export time)
+    #
 
 #Run Lum files
 #TODO add in configurable files.
@@ -239,7 +241,6 @@ def export2gds(FDTD,layerinfo,metadata,dupe,ori,SETTING=setting()):
     #A copy of the latter half of the LSF GUI wizard
     #checks if the layer entry is a duplicate, if it is, copy the duplicate's original values
     #if not, write to the format used by Lumerical's export functions    
-    #layer_def = np.empty(shape=(len(metadata['material']),1))
     layer_def = [dict['z':None,'material':None,'layer':None] for _ in range(len(metadata['material']))]
     for i in range(len(metadata['material'])):
         if i==any(dupe):
@@ -256,21 +257,7 @@ def export2gds(FDTD,layerinfo,metadata,dupe,ori,SETTING=setting()):
                         'material':layer_def[ori[j]]['material'],
                         'layer':layer_def[ori[j]]['layer']
                     }
-
-                    # if (layer_def[ori[j]]['material']=="<Object defined dielectric>"):
-                    #     layer_def[i] = {
-                    #         'z':    layer_def[ori[j]]['z'],
-                    #         'material':1,
-                    #         'layer':layer_def[ori[j]]['layer']               
-                    #     }
-                    # else:
-                    #     layer_def[i] = {
-                    #         'z':    layer_def[ori[j]]['z'],
-                    #         'material':layer_def[ori[j]]['material'],
-                    #         'layer':layer_def[ori[j]]['layer']               
-                    #     }
-
-                    
+              
         else:
             # layer_def[i][0] = layerinfo[i][0]
             # layer_def[i][1] = layerinfo[i][1]
@@ -291,16 +278,13 @@ def export2gds(FDTD,layerinfo,metadata,dupe,ori,SETTING=setting()):
                 'layer': str(layerinfo[i][0])+":"+str(layerinfo[i][1])
                 }
 
-    print(layer_def[0]['z'])
-    print(type(layer_def[0]['z']))
-    print(layer_def[0]['material'])
-    print(type(layer_def[0]['material']))
-    print(layer_def[0]['layer'])
-    print(type(layer_def[0]['layer']))
-    
-
+    # print(layer_def[0]['z'])
+    # print(type(layer_def[0]['z']))
+    # print(layer_def[0]['material'])
+    # print(type(layer_def[0]['material']))
+    # print(layer_def[0]['layer'])
+    # print(type(layer_def[0]['layer']))
     #layer_def = np.insert(layer_def,0,np.array([0,0,0,0])) #re-insert the empty first line, because lumerical uses index 1
-    #print(layer_def)
     
     #Directory needs to be changed to the libraries one to properly import lumerical's encrypted functions          
     thispath = os.path.dirname(os.path.abspath(__file__))
@@ -312,6 +296,8 @@ def export2gds(FDTD,layerinfo,metadata,dupe,ori,SETTING=setting()):
     FDTD.putv('metadata',metadata)
     FDTD.putv('layer_def',layer_def)
     FDTD.putv('gds_filename_temp',SETTING.DEFAULT_GDS_NAME_TEMP)
+
+    #deprecated:
     # FDTD.putv('top_cell',SETTING.DEFAULT_TOP_CELL_NAME)
     # FDTD.putv('n_circle',SETTING.n_circle)
     # FDTD.putv('n_ring',SETTING.n_ring)
@@ -320,6 +306,8 @@ def export2gds(FDTD,layerinfo,metadata,dupe,ori,SETTING=setting()):
     # FDTD.putv('round_to_nm',SETTING.round_to_nm)
     # FDTD.putv('grid',SETTING.grid)
     # FDTD.putv('max_objects',SETTING.max_objects)
+    #
+
     FDTD.eval(code) #loads the function into Lumerical
     
 if __name__ == "__main__":

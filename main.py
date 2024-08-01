@@ -11,14 +11,5 @@ mysetting.LOAD_LAYER_FILE = False                       #BOOLEAN: True to load l
 mysetting.LOAD_LAYER_FILENAME = "example/mylayercsv"    #STRING: output file will have .csv extension
 mysetting.SAVE_LAYER_FILE = True                        #BOOLEAN: True to save the generated layer file from the python CMD as .csv
 mysetting.SAVE_LAYER_FILENAME = "example/mylayercsv"    #STRING: Filename to save .csv 
-    
-#Advanced settings (Lumerical Export Function)
-mysetting.n_circle = 64;	    # number of sides to use for circle approximation (64 by default).
-mysetting.n_ring = 64;	        # number of slices to use for ring approximation (64 by default).
-mysetting.n_custom = 64;	    # number of slices to use for custom approximation (64 by default).
-mysetting.n_wg = 64;		    # number of slices to use for waveguide approximation (64 by default). 
-mysetting.round_to_nm = 1;	    # round the z and z span to the nearest integer of nm
-mysetting.grid = 1e-9;	        # Round XY coordinates to this grid in SI. Will also update the database units if grid < 
-mysetting.max_objects = 10000;	# the maximum number of objects within the workspace (Increasing this will increase export time)
 
 lumtogds.main(mysetting)
