@@ -15,11 +15,11 @@ from pathlib import Path
 
 class setting:
     INPUT_FILENAME = "example/test.fsp"           #STRING: path to file, the root folder is the library directory.
-    EXPORT_FILENAME = "lumexport.gds"             #STRING: Final file name, saves in the "output" folder
+    EXPORT_FILENAME = "output/lumexport.gds"             #STRING: Final file name, saves in the "output" folder
     LAYER_UNASSIGNED = 99                         #INT: value to give a layer if it wasn't assigned by the user
-    DEFAULT_GDS_NAME_TEMP = "output"              #STRING: intermediate file name
+    #DEFAULT_GDS_NAME_TEMP = "output"              #STRING: intermediate file name
     DEFAULT_TOP_CELL_NAME = "model"               #STRING: top cell name of the GDS, required by Lumerical Functions, doesn't seem to be functional?
-    HIDE_LUMERICAL = True                         #BOOLEAN: show or hide lumerical interface
+    HIDE_LUMERICAL = False                         #BOOLEAN: show or hide lumerical interface
     LOAD_LAYER_FILE = False                       #BOOLEAN: True to load layer information, false to use python CMD to set layers
     LOAD_LAYER_FILENAME = "example/mylayercsv"    #STRING: output file will have .csv extension
     SAVE_LAYER_FILE = True                        #BOOLEAN: True to save the generated layer file from the python CMD as .csv
@@ -47,10 +47,10 @@ def main(SETTING = setting()):
         ori,
         SETTING
         )
-    if PY_klayout.klayout_mergefiles():
-        print("Success: Export Complete.")
-    else:
-        print("Error: Final merge step did not complete.")
+    # if PY_klayout.klayout_mergefiles():
+    #     print("Success: Export Complete.")
+    # else:
+    #     print("Error: Final merge step did not complete.")
 
 def get_object_metadata(SETTING=setting()):
     FDTD = lumapi.FDTD(hide=SETTING.HIDE_LUMERICAL, filename=SETTING.INPUT_FILENAME)
@@ -232,21 +232,62 @@ def export2gds(FDTD,layerinfo,metadata,dupe,ori,SETTING=setting()):
     #A copy of the latter half of the LSF GUI wizard
     #checks if the layer entry is a duplicate, if it is, copy the duplicate's original values
     #if not, write to the format used by Lumerical's export functions    
-    layer_def = np.empty(shape=(len(metadata['material']),4))
+    #layer_def = np.empty(shape=(len(metadata['material']),1))
+    layer_def = [dict['z':None,'material':None,'layer':None] for _ in range(len(metadata['material']))]
     for i in range(len(metadata['material'])):
         if i==any(dupe):
              for j in range(len(dupe)):
                  if i==dupe[j]:
-                      layer_def[i][0] = layer_def[ori[j]][0]
-                      layer_def[i][1] = layer_def[ori[j]][1]
-                      layer_def[i][2] = layer_def[ori[j]][2]
-                      layer_def[i][3] = layer_def[ori[j]][3]
+                    #   layer_def[i][0] = layer_def[ori[j]][0] #layer 
+                    #   layer_def[i][1] = layer_def[ori[j]][1] #datatype
+                    #   layer_def[i][2] = layer_def[ori[j]][2] #zmin
+                    #   layer_def[i][3] = layer_def[ori[j]][3] #zmax
+                    #update
+
+                    if (layer_def[ori[j]]['material']=="<Object defined dielectric>"):
+                        layer_def[i] = {
+                            'z':    layer_def[ori[j]]['z'],
+                            'material':1,
+                            'layer':layer_def[ori[j]]['layer']               
+                        }
+                    else:
+                        layer_def[i] = {
+                            'z':    layer_def[ori[j]]['z'],
+                            'material':layer_def[ori[j]]['material'],
+                            'layer':layer_def[ori[j]]['layer']               
+                        }
+                    # layer_def[i].z = (layer_def[ori[j]][2] + layer_def[ori[j]][3])/2
+                    # layer_def[i].material = layer_def[ori[j]].material
+                    # layer_def[i].layer = str(layer_def[ori[j]][0])+":"+str(layer_def[ori[j]][1])
+                    
         else:
-            layer_def[i][0] = layerinfo[i][0]
-            layer_def[i][1] = layerinfo[i][1]
-            layer_def[i][2] = metadata['zmin'][i]                      
-            layer_def[i][3] = metadata['zmax'][i]    
+            # layer_def[i][0] = layerinfo[i][0]
+            # layer_def[i][1] = layerinfo[i][1]
+            # layer_def[i][2] = metadata['zmin'][i]                      
+            # layer_def[i][3] = metadata['zmax'][i]
+            # update
+
+            if metadata['material'][i] == "<Object defined dielectric>": #TEMP SOLUTION, DIELECTRIC
+                layer_def[i] = {
+                'z': (metadata['zmin'][i]+metadata['zmax'][i])/2,
+                'material': 1,
+                'layer': str(layerinfo[i][0])+":"+str(layerinfo[i][1])
+                }
+            else:
+                layer_def[i] = {
+                'z': (metadata['zmin'][i]+metadata['zmax'][i])/2,
+                'material': metadata['material'][i],
+                'layer': str(layerinfo[i][0])+":"+str(layerinfo[i][1])
+                }
+
+    print(layer_def[0]['z'])
+    print(type(layer_def[0]['z']))
+    print(layer_def[0]['material'])
+    print(type(layer_def[0]['material']))
+    print(layer_def[0]['layer'])
+    print(type(layer_def[0]['layer']))
     
+
     #layer_def = np.insert(layer_def,0,np.array([0,0,0,0])) #re-insert the empty first line, because lumerical uses index 1
     #print(layer_def)
     
@@ -256,18 +297,18 @@ def export2gds(FDTD,layerinfo,metadata,dupe,ori,SETTING=setting()):
     FDTD.eval("cd('"+thispath+"');")
     
     #putv can be used to pass variables, this is used here because sometimes LSF method of importing scripts doesn't work in nested functions
-    code = open('PY_exportmacro.lsf', 'r').read()
+    code = open('PY_exportmacro_v2.lsf', 'r').read()
     FDTD.putv('metadata',metadata)
     FDTD.putv('layer_def',layer_def)
-    FDTD.putv('gds_filename_temp',SETTING.DEFAULT_GDS_NAME_TEMP)
-    FDTD.putv('top_cell',SETTING.DEFAULT_TOP_CELL_NAME)
-    FDTD.putv('n_circle',SETTING.n_circle)
-    FDTD.putv('n_ring',SETTING.n_ring)
-    FDTD.putv('n_custom',SETTING.n_custom)
-    FDTD.putv('n_wg',SETTING.n_wg)
-    FDTD.putv('round_to_nm',SETTING.round_to_nm)
-    FDTD.putv('grid',SETTING.grid)
-    FDTD.putv('max_objects',SETTING.max_objects)
+    FDTD.putv('gds_filename',SETTING.EXPORT_FILENAME)
+    # FDTD.putv('top_cell',SETTING.DEFAULT_TOP_CELL_NAME)
+    # FDTD.putv('n_circle',SETTING.n_circle)
+    # FDTD.putv('n_ring',SETTING.n_ring)
+    # FDTD.putv('n_custom',SETTING.n_custom)
+    # FDTD.putv('n_wg',SETTING.n_wg)
+    # FDTD.putv('round_to_nm',SETTING.round_to_nm)
+    # FDTD.putv('grid',SETTING.grid)
+    # FDTD.putv('max_objects',SETTING.max_objects)
     FDTD.eval(code) #loads the function into Lumerical
     
 if __name__ == "__main__":
