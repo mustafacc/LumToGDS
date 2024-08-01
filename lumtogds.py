@@ -15,11 +15,11 @@ from pathlib import Path
 
 class setting:
     INPUT_FILENAME = "example/test.fsp"           #STRING: path to file, the root folder is the library directory.
-    EXPORT_FILENAME = "output/lumexport.gds"             #STRING: Final file name, saves in the "output" folder
+    EXPORT_FILENAME = "lumexport.gds"             #STRING: Final file name, saves in the "output" folder
     LAYER_UNASSIGNED = 99                         #INT: value to give a layer if it wasn't assigned by the user
-    #DEFAULT_GDS_NAME_TEMP = "output"              #STRING: intermediate file name
+    DEFAULT_GDS_NAME_TEMP = "output"              #STRING: intermediate file name
     DEFAULT_TOP_CELL_NAME = "model"               #STRING: top cell name of the GDS, required by Lumerical Functions, doesn't seem to be functional?
-    HIDE_LUMERICAL = False                         #BOOLEAN: show or hide lumerical interface
+    HIDE_LUMERICAL = True                         #BOOLEAN: show or hide lumerical interface
     LOAD_LAYER_FILE = False                       #BOOLEAN: True to load layer information, false to use python CMD to set layers
     LOAD_LAYER_FILENAME = "example/mylayercsv"    #STRING: output file will have .csv extension
     SAVE_LAYER_FILE = True                        #BOOLEAN: True to save the generated layer file from the python CMD as .csv
@@ -47,10 +47,10 @@ def main(SETTING = setting()):
         ori,
         SETTING
         )
-    # if PY_klayout.klayout_mergefiles():
-    #     print("Success: Export Complete.")
-    # else:
-    #     print("Error: Final merge step did not complete.")
+    if PY_klayout.klayout_mergefiles():
+        print("Success: Export Complete.")
+    else:
+        print("Error: Final merge step did not complete.")
 
 def get_object_metadata(SETTING=setting()):
     FDTD = lumapi.FDTD(hide=SETTING.HIDE_LUMERICAL, filename=SETTING.INPUT_FILENAME)
@@ -201,7 +201,10 @@ def layer_table(metadata,dupe,ori,layertable):
                 entry1 = '{:<7}'.format(entry1[:7])
                 entry2 = "Obj{}".format(int(ori[dup_index]))
                 entry2 = '{:<7}'.format(entry2[:7])
-                entry3 = str(metadata['material'][data_index])
+                if metadata['material'][data_index] == "<Object defined dielectric>":
+                    entry3 = str(metadata['index'][data_index])
+                else:
+                    entry3 = str(metadata['material'][data_index])
                 entry3 = '{:<30}'.format(entry3[:30])
                 entry4 = str(metadata['zmin'][data_index])
                 entry4 = '{:<10}'.format(entry4)
@@ -217,7 +220,11 @@ def layer_table(metadata,dupe,ori,layertable):
                 else:
                     entry2 = str(layertable[data_index][0])+":"+str(layertable[data_index][1])
                 entry2 = '{:<7}'.format(entry2)
-                entry3 = str(metadata['material'][data_index])
+                #entry3 = str(metadata['material'][data_index])
+                if metadata['material'][data_index] == "<Object defined dielectric>":
+                    entry3 = str(metadata['index'][data_index])
+                else:
+                    entry3 = str(metadata['material'][data_index])
                 entry3 = '{:<30}'.format(entry3[:30])
                 entry4 = str(metadata['zmin'][data_index])
                 entry4 = '{:<10}'.format(entry4)
@@ -242,35 +249,39 @@ def export2gds(FDTD,layerinfo,metadata,dupe,ori,SETTING=setting()):
                     #   layer_def[i][1] = layer_def[ori[j]][1] #datatype
                     #   layer_def[i][2] = layer_def[ori[j]][2] #zmin
                     #   layer_def[i][3] = layer_def[ori[j]][3] #zmax
-                    #update
 
-                    if (layer_def[ori[j]]['material']=="<Object defined dielectric>"):
-                        layer_def[i] = {
-                            'z':    layer_def[ori[j]]['z'],
-                            'material':1,
-                            'layer':layer_def[ori[j]]['layer']               
-                        }
-                    else:
-                        layer_def[i] = {
-                            'z':    layer_def[ori[j]]['z'],
-                            'material':layer_def[ori[j]]['material'],
-                            'layer':layer_def[ori[j]]['layer']               
-                        }
-                    # layer_def[i].z = (layer_def[ori[j]][2] + layer_def[ori[j]][3])/2
-                    # layer_def[i].material = layer_def[ori[j]].material
-                    # layer_def[i].layer = str(layer_def[ori[j]][0])+":"+str(layer_def[ori[j]][1])
+                    #update
+                    layer_def[i] = {
+                        'z':    layer_def[ori[j]]['z'],
+                        'material':layer_def[ori[j]]['material'],
+                        'layer':layer_def[ori[j]]['layer']
+                    }
+
+                    # if (layer_def[ori[j]]['material']=="<Object defined dielectric>"):
+                    #     layer_def[i] = {
+                    #         'z':    layer_def[ori[j]]['z'],
+                    #         'material':1,
+                    #         'layer':layer_def[ori[j]]['layer']               
+                    #     }
+                    # else:
+                    #     layer_def[i] = {
+                    #         'z':    layer_def[ori[j]]['z'],
+                    #         'material':layer_def[ori[j]]['material'],
+                    #         'layer':layer_def[ori[j]]['layer']               
+                    #     }
+
                     
         else:
             # layer_def[i][0] = layerinfo[i][0]
             # layer_def[i][1] = layerinfo[i][1]
             # layer_def[i][2] = metadata['zmin'][i]                      
             # layer_def[i][3] = metadata['zmax'][i]
-            # update
 
+            # update
             if metadata['material'][i] == "<Object defined dielectric>": #TEMP SOLUTION, DIELECTRIC
                 layer_def[i] = {
                 'z': (metadata['zmin'][i]+metadata['zmax'][i])/2,
-                'material': 1,
+                'material': metadata['index'][i],
                 'layer': str(layerinfo[i][0])+":"+str(layerinfo[i][1])
                 }
             else:
@@ -297,10 +308,10 @@ def export2gds(FDTD,layerinfo,metadata,dupe,ori,SETTING=setting()):
     FDTD.eval("cd('"+thispath+"');")
     
     #putv can be used to pass variables, this is used here because sometimes LSF method of importing scripts doesn't work in nested functions
-    code = open('PY_exportmacro_v2.lsf', 'r').read()
+    code = open('PY_exportmacro.lsf', 'r').read()
     FDTD.putv('metadata',metadata)
     FDTD.putv('layer_def',layer_def)
-    FDTD.putv('gds_filename',SETTING.EXPORT_FILENAME)
+    FDTD.putv('gds_filename_temp',SETTING.DEFAULT_GDS_NAME_TEMP)
     # FDTD.putv('top_cell',SETTING.DEFAULT_TOP_CELL_NAME)
     # FDTD.putv('n_circle',SETTING.n_circle)
     # FDTD.putv('n_ring',SETTING.n_ring)

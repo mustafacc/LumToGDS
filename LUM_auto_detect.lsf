@@ -11,7 +11,8 @@ function get_objects_info(){
         "name":cell(obj_count),
         "material":cell(obj_count),
         "zmin":cell(obj_count),
-        "zmax":cell(obj_count)    
+        "zmax":cell(obj_count),
+        "index":cell(obj_count)    
         };
     
     while_bool=1;
@@ -31,12 +32,14 @@ function get_objects_info(){
                 objects.material{i} = get("material"); 
                 objects.zmin{i} = get("z min"); 
                 objects.zmax{i} = get("z max");
+                objects.index{i} = get("index");
                 }
             else{
                 objects.name{i} = "none";
                 objects.material{i} = "none";
                 objects.zmin{i} = -1; #-1m, kind of risky to use in place of a none type. But lumerical doesn't have none types..
                 objects.zmax{i} = -1;
+                object.index{i} = -1;
                 }    
             }
         #reset variables. this is needed to assign 0 to unexpected values from line29
@@ -67,7 +70,8 @@ function get_objects_info(){
         "name":cell(count),
         "material":cell(count),
         "zmin":cell(count),
-        "zmax":cell(count)    
+        "zmax":cell(count),
+        "index":cell(count)    
         };
     
     #Copy objects that are geometries over to the new struct
@@ -78,7 +82,8 @@ function get_objects_info(){
                 formatted_objects.name{j} = objects.name{i};
                 formatted_objects.material{j} = objects.material{i};
                 formatted_objects.zmin{j} = objects.zmin{i};
-                formatted_objects.zmax{j} = objects.zmax{i};     
+                formatted_objects.zmax{j} = objects.zmax{i};
+                formatted_objects.index{j} = objects.index{i};     
                 j = j+1;                 
             }
         }
@@ -109,7 +114,8 @@ function get_duplicate_layers(objects){
         for(0;i<array_size;0){
             for(0;j<=array_size;0){
                 if (objects.material{i} == objects.material{j}){ #confirm materials match
-                    if ((objects.zmin{i} == objects.zmin{j}) & (objects.zmax{i} == objects.zmax{j})){
+                    #if ((objects.zmin{i} == objects.zmin{j}) & (objects.zmax{i} == objects.zmax{j})){
+                    if ((objects.zmin{i}+objects.zmax{i})/2 == (objects.zmin{j}+objects.zmax{j})/2){                    
                     layer_dup = [layer_dup,j];
                     layer_ori = [layer_ori,i];
                     }
@@ -132,7 +138,8 @@ function format_layerdata(objects,layer_dup){
     layerdata = {
         "material":cell(count),
         "zmin":cell(count),
-        "zmax":cell(count)
+        "zmax":cell(count),
+        "index":cell(count)
     };
     
     k=1;
@@ -142,6 +149,7 @@ function format_layerdata(objects,layer_dup){
             layerdata.material{k} = objects.material{i};
             layerdata.zmin{k} = objects.zmin{i};
             layerdata.zmax{k} = objects.zmax{i};
+            layerdata.index{k} = objects.index{i};
             k=k+1;
         }
     }

@@ -28,7 +28,14 @@ for (a=1;a<=length(metadata.name);a=a+1){ #cannot use i, it is used by the encry
 	select(metadata.name{a});
 	set("enabled",true);		
 	#print(layer_def);
-	Lumerical_GDS_autoexp; #this executes the gds export encrypted function
+	#Lumerical_GDS_autoexp; #this executes the gds export encrypted function
+        f_name = gdsopen(gds_filename);
+        level_list = get_level_list("::model::");
+        verbose = false;
+        try{
+        stck = extract_gds(level_list, layer_def, 0, f_name, verbose);
+        }
+        gdsclose(f_name);
 
 	select(metadata.name{a});		
 	set("enabled",false);	
