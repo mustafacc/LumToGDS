@@ -7,6 +7,7 @@ Wrapper built around functions released by Lumerical: [Link](https://optics.ansy
 - [ ] Python 3
 - [ ] Klayout Python API 
 - [ ] LumAPI
+- [ ] numpy
 
 # Installation - Lumerical GUI
 1. Open a command prompt and navigate to to the Lumerical Python installation, typically located at `C:\Program Files\Lumerical\vXXX\python`. Replace XXX with version number as necessary.

@@ -1,2 +1,2 @@
-klayout==0.26.12
+klayout
 numpy
