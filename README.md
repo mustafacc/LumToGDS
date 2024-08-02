@@ -1,6 +1,7 @@
 # LumToGDS
 Lumerical GUI Wizard and Python Library for exporting geometries into GDS format.
 Wrapper built around functions released by Lumerical: [Link](https://optics.ansys.com/hc/en-us/articles/1500006203341-GDSII-Export-Automation)
+Users can choose to use the Lumerical GUI, or import the library into a Python workflow.
 
 # Installation
 ## Python Prerequistes
@@ -54,7 +55,8 @@ Please flatten the whole hierachy for extraction. You may consider copy and past
 
 ## Same layer objects
 To reduce user input, the script will automatically flag an object as same-layer if its properties match another already-defined object. 
-The Criteria for this is:
-- material data AND Z position (zmin+zmax/2) are the same.
+All of the below must be satisfied for an object to be detected as same-layer:
+- Material data (user defined index or selected material)
+- Z position (zmin+zmax/2) are the same.
 
 In all other cases, a layer value will need to be set invidually for objects.
