@@ -17,7 +17,6 @@ Wrapper built around functions released by Lumerical: [Link](https://optics.ansy
     - The wrapper refers to the provided files locally, changing any of the files locations relative to each other will require updating the script.
 2.  In a command prompt, run the command: `pip install -r requirements.txt` to automatically install the required libraries.
 
-# TO UPDATE BELOW
 # How to use
 - All files must be in the same folder. The relative file hierarchy of `.py`, `.lsf`, and `.lsfx` files MUST remain as is.
 - Do not delete the output folder
@@ -36,7 +35,7 @@ Wrapper built around functions released by Lumerical: [Link](https://optics.ansy
 ## Via Python
 Example available in `Main.py`.
 1. `Import lumtogds`.
-2. Creating a settings object with the parameters you wish to run the export with.
+2. Create a settings object with the parameters you wish to run the export with.
 3. call `main()`
     - If the layer assignment is not loaded from a file, the command-line will provide a UI to create layer assignments.
 
@@ -45,29 +44,16 @@ A makefile is provided that generates geoemtries in different situations to demo
 1. Launch FDTD and load/run the script `example/example_makefile.lsf`
 2. Run via the LSF Wizard Method or Python Method.
 
-# What does it do?
-## LSF Wizard
-1. Automatically extracts all geometries from the object hierarchy tree (note limitations, see below).
-2. Prompts the user with a Wizard to quickly set the layer information for each detected, unique, object.
-3. Exports all unique objects to a standalone GDS (Klayout 0.26 format, see limitations).
-4. Merges all GDS into a single file.
-5. Converts to up-to-date Klayout format by resaving using Klayout 0.26.
-
-## Python Wizard
-1. Uses `LumAPI` and `mainLSF.lsf` to obtain the object tree from Lumerical.
-2. Attempts to load a Layer Assignment File (numpy array). If none found, a CMD UI procedure will be used to create layer assignments. Users can save the file to avoiding requiring manual assignment again.
-3. Each object is exported into a GDS file.
-4. All GDS files are merged into a single file.
-5. Converts to up-to-date Klayout format by resvaing using Klayout 0.26.
+# FAQ
 
 ## Limitations - Geometry Objects
 - Geometry objects in the Lumerical object tree MUST have unique names. Same names will be overwritten by newer entries, no error will be prompted.
 - Geoemtry objects cannot be nested (e.g. Groups, such as containers, structure groups, analysis groups, etc.). 
 Please flatten the whole hierachy for extraction. You may consider copy and pasting the tree into a new FDTD instance by selecting the tree and ctrl+c/ctrl+v into a new FDTD file.
 
-## Limitations - Klayout GDS Format Versions
-- Klayout 0.27 went through a massive data structure update for GDS files resulting in an error when attempting to open files extracted by the functions provided by Lumerical. 
-- As a workaround, saving in Klayout 0.26 will update the GDS file into the newer formats used by later versions.
+## Same layer objects
+To reduce user input, the script will automatically flag an object as same-layer if its properties match another already-defined object. 
+The Criteria for this is:
+- material data AND Z position (zmin+zmax/2) are the same.
 
-# For Complex geometries:
-Please see this extraction method: [Link](https://optics.ansys.com/hc/en-us/articles/1500007228522-GDS-pattern-extraction-for-inverse-designed-devices-using-contours-method)
+In all other cases, a layer value will need to be set invidually for objects.
