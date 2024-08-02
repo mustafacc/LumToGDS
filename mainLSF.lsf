@@ -15,6 +15,13 @@ cd(thispath{1});
 GDSexport_core;
 LUM_auto_detect;
 
+#copy current file for exporting
+orifilename = currentfilename;
+copyfilename = "lumtogdscopytmp.fsp";
+save(copyfilename);
+load(copyfilename);
+copyfilename = currentfilename;
+
 #FUNCTIONS
 function draw_entry_page(i,metadata,dupdata){
     if(i==1){newwizardpage("Next");}
@@ -167,7 +174,12 @@ else if(out==1){
 for (a=1;a<=length(metadata.name);a=a+1){
 	select(metadata.name{a});
 	set("enabled",true);           
-}	
+}
+
+#reopen original file and delete temp file
+load(orifilename);
+del(copyfilename);
+	
 clearfunctions;
 clear(gds_filename);
 clear(gds_filename_temp);
@@ -188,5 +200,8 @@ clear(level_list);
 clear(stck);
 clear(thispath);
 clear(verbose);
+clear(orifilename);
+clear(copyfilename);
 
+cd(filedirectory(currentscriptname));
 python("PY_klayout.py"); #Converts and merges the output file to be usable with up to date Klayout versions
