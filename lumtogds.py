@@ -18,28 +18,16 @@ class setting:
     EXPORT_FILENAME = "lumexport.gds"             #STRING: Final file name, saves in the "output" folder
     LAYER_UNASSIGNED = 99                         #INT: value to give a layer if it wasn't assigned by the user
     DEFAULT_GDS_NAME_TEMP = "output"              #STRING: intermediate file name
-    DEFAULT_TOP_CELL_NAME = "model"               #STRING: top cell name of the GDS, required by Lumerical Functions, doesn't seem to be functional?
     HIDE_LUMERICAL = True                         #BOOLEAN: show or hide lumerical interface
     LOAD_LAYER_FILE = False                       #BOOLEAN: True to load layer information, false to use python CMD to set layers
     LOAD_LAYER_FILENAME = "example/mylayercsv"    #STRING: output file will have .csv extension
     SAVE_LAYER_FILE = True                        #BOOLEAN: True to save the generated layer file from the python CMD as .csv
     SAVE_LAYER_FILENAME = "example/mylayercsv"    #STRING: Filename to save .csv 
 
-    #DEPRECATED    
-    #Advanced settings (Lumerical Export Function)
-    # n_circle = 64;	# number of sides to use for circle approximation (64 by default).
-    # n_ring = 64;	# number of slices to use for ring approximation (64 by default).
-    # n_custom = 64;	# number of slices to use for custom approximation (64 by default).
-    # n_wg = 64;		# number of slices to use for waveguide approximation (64 by default). 
-    # round_to_nm = 1;	# round the z and z span to the nearest integer of nm
-    # grid = 1e-9;	# Round XY coordinates to this grid in SI. Will also update the database units if grid < 
-    # max_objects = 10000;	# the maximum number of objects within the workspace (Increasing this will increase export time)
-    #
-
 #Run Lum files
 #TODO add in configurable files.
 def main(SETTING = setting()):
-    metadata, dupe, ori, FDTD = get_object_metadata(SETTING)
+    metadata, dupe, ori, FDTD, original_file, copy_file = get_object_metadata(SETTING)
     layerinfo = assign_layerinfo(metadata,dupe,ori,SETTING)
     export2gds(
         FDTD,
@@ -47,7 +35,9 @@ def main(SETTING = setting()):
         metadata,
         dupe,
         ori,
-        SETTING
+        original_file,
+        copy_file,
+        SETTING,
         )
     if PY_klayout.klayout_mergefiles():
         print("Success: Export Complete.")
@@ -58,8 +48,13 @@ def get_object_metadata(SETTING=setting()):
     FDTD = lumapi.FDTD(hide=SETTING.HIDE_LUMERICAL, filename=SETTING.INPUT_FILENAME)
     code = open('LUM_auto_detect.lsf', 'r').read()
     FDTD.eval(code) #loads the function into Lumerical
+    
+    #Copy file to prevent messing up original file while traversing the object tree
+    original_file = FDTD.get_currentfilename();
+    copy_file = FDTD.create_copy_file();
+    
     metadata = FDTD.get_objects_info() #calls the function from LSF
-    print(type(metadata))
+    #print(type(metadata))
     
     dupdata = FDTD.get_duplicate_layers(metadata)
     dupe = dupdata[:,1]-1 #lumerical uses index starting at 1, so -1 is necessary
@@ -69,7 +64,7 @@ def get_object_metadata(SETTING=setting()):
     dupe = [int(item) for item in dupe]
     ori = [int(item) for item in ori]
     
-    return metadata,dupe,ori,FDTD
+    return metadata,dupe,ori,FDTD,original_file,copy_file
 
 def assign_layerinfo(metadata,dupe,ori,SETTING=setting()):
     #automatically assign the layers based on material, then heights
@@ -237,7 +232,7 @@ def layer_table(metadata,dupe,ori,layertable):
     
     return output
 
-def export2gds(FDTD,layerinfo,metadata,dupe,ori,SETTING=setting()):
+def export2gds(FDTD,layerinfo,metadata,dupe,ori,original_file,copy_file,SETTING=setting()):
     #A copy of the latter half of the LSF GUI wizard
     #checks if the layer entry is a duplicate, if it is, copy the duplicate's original values
     #if not, write to the format used by Lumerical's export functions    
@@ -296,19 +291,12 @@ def export2gds(FDTD,layerinfo,metadata,dupe,ori,SETTING=setting()):
     FDTD.putv('metadata',metadata)
     FDTD.putv('layer_def',layer_def)
     FDTD.putv('gds_filename_temp',SETTING.DEFAULT_GDS_NAME_TEMP)
-
-    #deprecated:
-    # FDTD.putv('top_cell',SETTING.DEFAULT_TOP_CELL_NAME)
-    # FDTD.putv('n_circle',SETTING.n_circle)
-    # FDTD.putv('n_ring',SETTING.n_ring)
-    # FDTD.putv('n_custom',SETTING.n_custom)
-    # FDTD.putv('n_wg',SETTING.n_wg)
-    # FDTD.putv('round_to_nm',SETTING.round_to_nm)
-    # FDTD.putv('grid',SETTING.grid)
-    # FDTD.putv('max_objects',SETTING.max_objects)
-    #
-
     FDTD.eval(code) #loads the function into Lumerical
+
+    #remove temporary copy of the fsp file
+    code = open('LUM_auto_detect.lsf', 'r').read()
+    FDTD.eval(code) #loads the function into Lumerical
+    FDTD.remove_copy_file(original_file,copy_file)
     
 if __name__ == "__main__":
     main()

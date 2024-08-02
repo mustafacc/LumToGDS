@@ -15,12 +15,15 @@ cd(thispath{1});
 GDSexport_core;
 LUM_auto_detect;
 
-#copy current file for exporting
+##copy current file for exporting
+#orifilename = currentfilename;
+#copyfilename = "lumtogdscopytmp.fsp";
+#save(copyfilename);
+#load(copyfilename);
+#copyfilename = currentfilename;
 orifilename = currentfilename;
-copyfilename = "lumtogdscopytmp.fsp";
-save(copyfilename);
-load(copyfilename);
-copyfilename = currentfilename;
+copyfilename = create_copy_file();
+
 
 #FUNCTIONS
 function draw_entry_page(i,metadata,dupdata){
@@ -176,10 +179,12 @@ for (a=1;a<=length(metadata.name);a=a+1){
 	set("enabled",true);           
 }
 
-#reopen original file and delete temp file
-load(orifilename);
-del(copyfilename);
+##reopen original file and delete temp file
+#load(orifilename);
+#del(copyfilename);
 	
+remove_copy_file(orifilename,copyfilename);
+
 clearfunctions;
 clear(gds_filename);
 clear(gds_filename_temp);

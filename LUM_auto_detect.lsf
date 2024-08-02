@@ -157,6 +157,26 @@ function format_layerdata(objects,layer_dup){
     return layerdata;
 }
 
+function create_copy_file(){
+    #copy current file for exporting
+    orifilename = currentfilename;
+    copyfilename = "lumtogdscopytmp.fsp";
+    save(copyfilename);
+    load(copyfilename);
+    copyfilename = currentfilename;
+    return copyfilename;
+}
+
+function get_currentfilename(){
+    return currentfilename;
+}
+
+function remove_copy_file(orifilename,copyfilename){
+    #reopen original file and delete temp file
+    load(orifilename);
+    del(copyfilename);
+}
+
 #a=get_objects_info();
 #metadata = create_export_metadata(get_objects_info());
 #clearfunctions;
