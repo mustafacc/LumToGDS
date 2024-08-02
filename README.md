@@ -2,31 +2,22 @@
 Lumerical GUI Wizard and Python Library for exporting geometries into GDS format.
 Wrapper built around functions released by Lumerical: [Link](https://optics.ansys.com/hc/en-us/articles/1500006203341-GDSII-Export-Automation)
 
-This wrapper uses a command-line Klayout 0.26 to resave GDS files to make them compatible with later Klayout releases.
-
 # Installation
 ## Python Prerequistes
-- [ ] Python x64, 3.9 ONLY (Tested on 3.9, x64).
-- [ ] Klayout 0.26.12 Python API 
+- [ ] Python 3
+- [ ] Klayout Python API 
 - [ ] LumAPI
 
-# Installation Instructions
-1. Install Python 3.9 x64
-2. In the windows command-line, run the command: `pip install -r requirements.txt` to automatically install the required libraries.
-3. Confirm/Add the Python 3.9 Environment Path
-    1. Open the Start Menu and type "Edit system environment variables"
-    2. In the popped up window, click "Environment Variables"
-    3. Select the "Path" entry at the top, under "user variarables", and click edit.
-    4. Click "New" on the right, and provide the path to the python 3.9 executable 
-        - E.g.: `C:\users\YOURUSER\AppData\Local\Programs\Python\Python39\`
-    5. Click "New" on the right, and provide a path to the python script folder.
-        - E.g.: `C:\users\YOURUSER\AppData\Local\Programs\Python\Python39\Scripts\`
-4. Launch FDTD and update the settings to use the local Python, not the integrated Python.
-    - From the top drop-down menu, select help>Python Integration Status> and uncheck the "Use Python provided by Lumerical" option.
-    - Also confirm the Executable path is pointing to the the python.exe from the Path in Step 3.4.
-5. Clone or download this repository and save it to an accessible location.
-    - The wrapper refers to the provided files locally, changing any of the files locations relative to each other will require updating the script.
+# Installation - Lumerical GUI
+1. Open a command prompt and navigate to to the Lumerical Python installation, typically located at `C:\Program Files\Lumerical\vXXX\python`. Replace XXX with version number as necessary.
+2. Enter the following command to install the Klayout module: `.\python.exe -m pip install klayout`
 
+# Installation - Python
+1. Clone or download this repository and save it to an accessible location.
+    - The wrapper refers to the provided files locally, changing any of the files locations relative to each other will require updating the script.
+2.  In a command prompt, run the command: `pip install -r requirements.txt` to automatically install the required libraries.
+
+# TO UPDATE BELOW
 # How to use
 - All files must be in the same folder. The relative file hierarchy of `.py`, `.lsf`, and `.lsfx` files MUST remain as is.
 - Do not delete the output folder
