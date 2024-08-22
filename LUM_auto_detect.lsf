@@ -28,10 +28,16 @@ function get_objects_info(){
                 test=get("material"); #check the obj is a geometry
                 }catch(errMsg); #Lumerical support: you can use get("type") or getnamed("NAME","type"). But this returns specific object types, not general types
              if (errMsg == ""){
-                objects.name{i} = get("name");
+                ?objects.name{i} = get("name");
                 objects.material{i} = get("material"); 
-                objects.zmin{i} = get("z min"); 
-                objects.zmax{i} = get("z max");
+                if (get("type") != "Waveguide"){
+                    objects.zmin{i} = get("z min"); 
+                    objects.zmax{i} = get("z max"); 
+                }
+                else{            
+                    objects.zmin{i} = get("z"); 
+                    objects.zmax{i} = get("z"); 
+                }                
                 objects.index{i} = get("index");
                 }
             else{
